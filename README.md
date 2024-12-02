@@ -1,5 +1,16 @@
 # Coursework for Engineering for Data Analysis 1
 
+### Deployment
+
+1. terraform
+
+```
+cd <path to repo>/terraform
+terraform init
+terraform apply
+```
+
+
 ### Development
 
 1. sync with remote machine
