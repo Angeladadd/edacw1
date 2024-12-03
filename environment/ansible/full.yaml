@@ -1,0 +1,3 @@
+---
+
+- import_playbook: second_disk.yaml

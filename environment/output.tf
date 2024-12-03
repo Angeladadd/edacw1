@@ -6,18 +6,18 @@ output host_vm_ids {
   value = harvester_virtualmachine.hostvm.*.id
 }
 
-output worker_ips {
+output worker_vm_ips {
   value = harvester_virtualmachine.workervm[*].network_interface[0].ip_address
 }
 
-output worker_ids {
+output worker_vm_ids {
   value = harvester_virtualmachine.workervm.*.id
 }
 
-output storage_ips {
+output storage_vm_ips {
   value = harvester_virtualmachine.storagevm[*].network_interface[0].ip_address
 }
 
-output storage_ids {
+output storage_vm_ids {
   value = harvester_virtualmachine.storagevm.*.id
 }
