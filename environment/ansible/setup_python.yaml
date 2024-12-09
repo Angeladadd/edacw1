@@ -1,0 +1,24 @@
+- name: Set Up Python Environment
+  hosts: hostnode
+  become: true
+  vars:
+    ppl_path: "/home/almalinux/pipeline"
+  tasks:
+  - name: copy pipeline scripts
+    ansible.builtin.copy:
+      src: /home/almalinux/edacw1/pipeline
+      dest: /home/almalinux/
+      owner: almalinux
+      group: almalinux
+      mode: "0755"
+  - name: create virtual environment
+    ansible.builtin.command:
+      cmd: python3 -m venv {{ ppl_path }}/venv
+      creates: "{{ ppl_path }}/venv/bin/activate"
+  - name: install required packages
+    ansible.builtin.pip:
+      requirements: "{{ ppl_path }}/requirements.txt"
+      virtualenv: "{{ ppl_path }}/venv"
+      virtualenv_python: python3
+  - name: start virtual environment
+    ansible.builtin.shell: "source {{ ppl_path }}/venv/bin/activate"

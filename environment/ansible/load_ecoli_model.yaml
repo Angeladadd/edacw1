@@ -1,0 +1,23 @@
+- name: Download E.coli AlphaFoldDB Model Data
+  hosts: storagenode
+  tasks:
+  - name: Make tmp directory
+    ansible.builtin.file:
+      path: /home/almalinux/data/tmp
+      state: directory
+      mode: '0755'
+  - name: Download E.coli AlphaFoldDB models
+    ansible.builtin.get_url:
+      dest: /home/almalinux/data/UP000000625_83333_ECOLI_v4.tar
+      tmp_dest: /home/almalinux/data/tmp
+      url: https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000625_83333_ECOLI_v4.tar
+  - name: Make E.coli model directory
+    ansible.builtin.file:
+      path: /home/almalinux/data/UP000000625_83333_ECOLI_v4
+      state: directory
+      mode: '0777'
+  - name: Unpack E.coli AlphaFoldDB models archive
+    ansible.builtin.unarchive:
+      remote_src: true
+      src: /home/almalinux/data/UP000000625_83333_ECOLI_v4.tar
+      dest: /home/almalinux/data/UP000000625_83333_ECOLI_v4

@@ -2,6 +2,13 @@
 
 ### Deployment
 
+disable host key checking
+```sh
+vim  ~/.ssh/config
+Host *
+        StrictHostKeyChecking accept-new
+```
+
 ```sh
 cd <path to repo>/environment
 # create vms

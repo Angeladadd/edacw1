@@ -1,0 +1,11 @@
+- name: Update dependencies and reboot
+  hosts: all
+  become: true
+  become_user: root
+  tasks: 
+  - name: Update packages
+    ansible.builtin.dnf:
+      name: "*"
+      state: latest
+  - name: Reboot
+    reboot:
