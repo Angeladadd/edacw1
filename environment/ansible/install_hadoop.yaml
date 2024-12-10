@@ -3,20 +3,25 @@
   vars:
     hadoop_home: /home/almalinux/hadoop-3.4.0
   tasks: 
-  - name: Download hadoop
-    ansible.builtin.get_url:
-      dest: /home/almalinux/hadoop.tar.gz
-      url: "https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz"
   - name: Check if Hadoop is already extracted
     ansible.builtin.stat:
       path: "{{ hadoop_home }}"
     register: hadoop_folder_check
+  - name: Download hadoop
+    ansible.builtin.get_url:
+      dest: /home/almalinux/hadoop.tar.gz
+      url: "https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz"
+    when: not hadoop_folder_check.stat.exists
   - name: Unpack tgz file
     ansible.builtin.unarchive:
       dest: /home/almalinux/
       remote_src: true
       src: /home/almalinux/hadoop.tar.gz
     when: not hadoop_folder_check.stat.exists
+  - name: Remove hadoop tar file
+    ansible.builtin.file:
+      path: "/home/almalinux/hadoop.tar.gz"
+      state: absent
   - name: Set hadoop environment
     ansible.builtin.blockinfile:
       path: /home/almalinux/.bashrc

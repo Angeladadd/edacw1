@@ -1,5 +1,7 @@
 - name: Download Human AlphaFoldDB Model Data
-  hosts: hostnode
+  hosts: storagenode
+  vars:
+    data_dir: /home/almalinux/data/UP000005640_9606_HUMAN_v4
   tasks:
   - name: Make tmp directory
     ansible.builtin.file:
@@ -11,13 +13,30 @@
       dest: /home/almalinux/data/UP000005640_9606_HUMAN_v4.tar
       tmp_dest: /home/almalinux/data/tmp
       url: https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000005640_9606_HUMAN_v4.tar
+  - name: Check if Model is already extracted
+    ansible.builtin.stat:
+      path: "{{ data_dir }}"
+    register: folder_check
   - name: Make Human model directory
     ansible.builtin.file:
       path: /home/almalinux/data/UP000005640_9606_HUMAN_v4
       state: directory
       mode: '0777'
+    when: not folder_check.stat.exists
   - name: Unpack Human AlphaFoldDB models archive
     ansible.builtin.unarchive:
       remote_src: true
       src: /home/almalinux/data/UP000005640_9606_HUMAN_v4.tar
       dest: /home/almalinux/data/UP000005640_9606_HUMAN_v4
+    when: not folder_check.stat.exists
+  - name: Check if File Exists in HDFS
+    ansible.builtin.command:
+      cmd: "/home/almalinux/hadoop-3.4.0/bin/hdfs dfs -test -e /UP000005640_9606_HUMAN_v4"
+    register: hdfs_check
+    ignore_errors: yes
+  - name: Upload File to HDFS
+    ansible.builtin.command:
+      cmd: "/home/almalinux/hadoop-3.4.0/bin/hdfs dfs -copyFromLocal /home/almalinux/data/UP000005640_9606_HUMAN_v4 /UP000005640_9606_HUMAN_v4"
+    register: upload_result
+    ignore_errors: no
+    when: hdfs_check.rc != 0  

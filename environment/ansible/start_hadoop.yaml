@@ -18,6 +18,10 @@
     ansible.builtin.template:
       src: files/workers.j2
       dest: "{{ hadoop_home }}/etc/hadoop/workers"
+  - name: stop dfs
+    ansible.builtin.shell: "{{ hadoop_home }}/sbin/stop-dfs.sh"
+  - name: stop yarn
+    ansible.builtin.shell: "{{ hadoop_home }}/sbin/stop-yarn.sh"
   - name: format cluster
     ansible.builtin.shell: |
         yes | hdfs namenode -format
