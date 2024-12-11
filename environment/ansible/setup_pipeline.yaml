@@ -1,5 +1,5 @@
-- name: Set Up Python Environment
-  hosts: hostnode:workers
+- name: Set Up Pipeline
+  hosts: hostnode
   vars:
     ppl_path: "/home/almalinux/pipeline"
   tasks:
@@ -10,29 +10,17 @@
       owner: almalinux
       group: almalinux
       mode: "0755"
+  - name: add to pythonpath
+    ansible.builtin.lineinfile:
+      path: /home/almalinux/.bashrc
+      insertafter: EOF
+      line: "export PYTHONPATH=${PYTHONPATH}:{{ ppl_path }}"
+      state: present
+  - name: reload environment variables
+    ansible.builtin.shell: source /home/almalinux/.bashrc
   # - name: create virtual environment
   #   ansible.builtin.command:
   #     cmd: python3 -m venv {{ ppl_path }}/venv
   #     creates: "{{ ppl_path }}/venv/bin/activate"
   # - name: start virtual environment
   #   ansible.builtin.shell: "source {{ ppl_path }}/venv/bin/activate"
-  - name: install required packages
-    ansible.builtin.pip:
-      requirements: "{{ ppl_path }}/requirements.txt"
-      virtualenv: "{{ ppl_path }}/venv"
-      virtualenv_python: python3
-  - name: copy merizo repo
-    ansible.builtin.git:
-      src: /home/almalinux/edacw1/merizo_search
-      dest: /home/almalinux/
-      owner: almalinux
-      group: almalinux
-      mode: "0755"
-  - name: add to pythonpath
-    ansible.builtin.lineinfile:
-      path: /home/almalinux/.bashrc
-      insertafter: EOF
-      line: "export PYTHONPATH=${PYTHONPATH}:/home/almalinux/merizo_search/merizo_search"
-      state: present
-  - name: reload environment variables
-    ansible.builtin.shell: source /home/almalinux/.bashrc

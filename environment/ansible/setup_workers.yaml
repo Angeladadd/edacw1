@@ -1,0 +1,50 @@
+- name: Prepare workers envrioment
+  hosts: workers
+  vars:
+    db_path: "/home/almalinux/db"
+  tasks:
+  - name: Make db directory
+    ansible.builtin.file:
+      path: "{{ db_path }}"
+      state: directory
+      mode: '0755'
+  - name: Download CATH Foldclass DB
+    ansible.builtin.get_url:
+      dest: "{{ db_path }}/cath_foldclassdb.tar.gz"
+      url: http://bioinfadmin.cs.ucl.ac.uk/downloads/merizo_search/cath_foldclassdb.tar.gz
+  - name: Make CATH Foldclass DB directory
+    ansible.builtin.file:
+      path: "{{ db_path }}/cath_foldclassdb"
+      state: directory
+      mode: '0777'
+  - name: Unpack CATH Foldclass DB archive
+    ansible.builtin.unarchive:
+      remote_src: true
+      src: "{{ db_path }}/cath_foldclassdb.tar.gz"
+      dest: "{{ db_path }}/cath_foldclassdb"
+  - name: copy requirements file
+    ansible.builtin.copy:
+      src: files/requirements.txt
+      dest: /home/almalinux/
+      owner: almalinux
+      group: almalinux
+      mode: "0755"
+  - name: install required packages
+    ansible.builtin.pip:
+      requirements: /home/almalinux/requirements.txt
+      executable: pip3
+  - name: copy merizo repo
+    ansible.builtin.copy:
+      src: /home/almalinux/edacw1/merizo_search
+      dest: /home/almalinux/
+      owner: almalinux
+      group: almalinux
+      mode: "0755"
+  - name: add to pythonpath
+    ansible.builtin.lineinfile:
+      path: /home/almalinux/.bashrc
+      insertafter: EOF
+      line: "export PYTHONPATH=${PYTHONPATH}:/home/almalinux/merizo_search/merizo_search"
+      state: present
+  - name: reload environment variables
+    ansible.builtin.shell: source /home/almalinux/.bashrc

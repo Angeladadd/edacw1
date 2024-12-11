@@ -1,0 +1,22 @@
+- name: Run Analysis Pipeline
+  hosts: hostnode
+  vars:
+    ppl_path: "/home/almalinux/pipeline"
+    script_args: "UP000005640_9606_HUMAN_v4"
+  tasks:
+  - name: Run Spark-Submit on Master Node
+    ansible.builtin.shell: |
+        spark-submit \
+        --master local[*] \
+        --deploy-mode client \
+        --name "AnalisysPipelineApp" \
+        --executor-memory 2G \
+        --total-executor-cores 4 \
+        --conf "spark.executor.instances=2" \
+        {{ ppl_path }}/pipeline.py {{ script_args }}
+    args:
+      executable: /bin/bash
+    register: spark_submit_result
+  - name: Show Spark Submit Result
+    ansible.builtin.debug:
+      msg: "{{ spark_submit_result.stdout_lines }}"
