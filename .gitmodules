@@ -1,0 +1,3 @@
+[submodule "merizo_search"]
+	path = merizo_search
+	url = https://github.com/psipred/merizo_search.git

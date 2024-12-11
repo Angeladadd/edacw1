@@ -21,17 +21,18 @@
       requirements: "{{ ppl_path }}/requirements.txt"
       virtualenv: "{{ ppl_path }}/venv"
       virtualenv_python: python3
-  - name: clone merizo repo
+  - name: copy merizo repo
     ansible.builtin.git:
-      repo: "https://github.com/psipred/merizo_search.git"
-      dest: "{{ ppl_path }}/merizo_search"
-      version: main
-      update: yes
+      src: /home/almalinux/edacw1/merizo_search
+      dest: /home/almalinux/
+      owner: almalinux
+      group: almalinux
+      mode: "0755"
   - name: add to pythonpath
     ansible.builtin.lineinfile:
       path: /home/almalinux/.bashrc
       insertafter: EOF
-      line: "export PYTHONPATH=${PYTHONPATH}:{{ ppl_path }}/merizo_search/merizo_search"
+      line: "export PYTHONPATH=${PYTHONPATH}:/home/almalinux/merizo_search/merizo_search"
       state: present
   - name: reload environment variables
     ansible.builtin.shell: source /home/almalinux/.bashrc
