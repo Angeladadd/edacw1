@@ -7,12 +7,11 @@
   - name: Run Spark-Submit on Master Node
     ansible.builtin.shell: |
         spark-submit \
-        --master local[*] \
-        --deploy-mode client \
-        --name "AnalisysPipelineApp" \
-        --executor-memory 2G \
+        --master yarn \
+        --deploy-mode cluster \
+        --executor-memory 30G \
         --total-executor-cores 4 \
-        --conf "spark.executor.instances=2" \
+        --conf "spark.executor.instances=3" \
         {{ ppl_path }}/pipeline.py {{ script_args }}
     args:
       executable: /bin/bash
