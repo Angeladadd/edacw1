@@ -60,6 +60,23 @@ resource "harvester_virtualmachine" "hostvm" {
     auto_delete = true
   }
 
+  tags = {
+    condenser_ingress_isEnabled = true
+    condenser_ingress_isAllowed = true
+    condenser_ingress_yarn_hostname = "${var.username}-yarn"
+    condenser_ingress_yarn_port = 8088
+    condenser_ingress_yarn_nginx_proxy-body-size = "10000000m"
+    condenser_ingress_prometheus_hostname = "${var.username}-prometheus"
+    condenser_ingress_prometheus_port = 9090
+    condenser_ingress_prometheus_nginx_proxy-body-size = "10000000m"
+    condenser_ingress_node_hostname = "${var.username}-node"
+    condenser_ingress_node_port = 9100
+    condenser_ingress_node_nginx_proxy-body-size = "10000000m"
+    condenser_ingress_grafana_hostname = "${var.username}-grafana"
+    condenser_ingress_grafana_port = 3000
+    condenser_ingress_grafana_nginx_proxy-body-size = "10000000m"
+  }
+
   cloudinit {
     user_data_secret_name = harvester_cloudinit_secret.cloud-config.name
   }

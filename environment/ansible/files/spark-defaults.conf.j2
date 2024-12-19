@@ -1,3 +1,18 @@
+# Enable Spark Web UI
+spark.ui.enabled true
+
+# Set the Spark UI port
+spark.ui.port 4040
+
+spark.yarn.submit.waitAppCompletion false
+spark.eventLog.enabled true
+spark.eventLog.dir hdfs://hostnode:9000/spark-logs
+
+# History server for completed jobs (optional)
+spark.history.fs.logDirectory hdfs://hostnode:9000/user/spark/applicationHistory
+spark.history.ui.port 18080
+spark.history.retainedApplications 50
+
 spark.authenticate true
 spark.authenticate.secret "{{lookup('ansible.builtin.password', './.sparkpass', length=16) }}"
 spark.executor.cores 4

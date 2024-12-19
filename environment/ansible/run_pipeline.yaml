@@ -9,9 +9,6 @@
         spark-submit \
         --master yarn \
         --deploy-mode cluster \
-        --executor-memory 30G \
-        --total-executor-cores 4 \
-        --conf "spark.executor.instances=3" \
         {{ ppl_path }}/pipeline.py {{ script_args }}
     args:
       executable: /bin/bash

@@ -2,6 +2,7 @@
   hosts: workers
   vars:
     db_path: "/home/almalinux/db"
+    ppl_path: "/home/almalinux/pipeline"
   tasks:
   - name: Make db directory
     ansible.builtin.file:
@@ -22,6 +23,13 @@
       remote_src: true
       src: "{{ db_path }}/cath_foldclassdb.tar.gz"
       dest: "{{ db_path }}/cath_foldclassdb"
+  - name: copy pipeline scripts
+    ansible.builtin.copy:
+      src: /home/almalinux/edacw1/pipeline
+      dest: /home/almalinux/
+      owner: almalinux
+      group: almalinux
+      mode: "0755"
   - name: copy requirements file
     ansible.builtin.copy:
       src: files/requirements.txt
@@ -31,7 +39,7 @@
       mode: "0755"
   - name: install required packages
     ansible.builtin.pip:
-      requirements: /home/almalinux/requirements.txt
+      requirements: "{{ ppl_path }}/requirements.txt"
       executable: pip3
   - name: copy merizo repo
     ansible.builtin.copy:
@@ -44,7 +52,7 @@
     ansible.builtin.lineinfile:
       path: /home/almalinux/.bashrc
       insertafter: EOF
-      line: "export PYTHONPATH=${PYTHONPATH}:/home/almalinux/merizo_search/merizo_search"
+      line: "export PYTHONPATH=${PYTHONPATH}:/home/almalinux/merizo_search/merizo_search/programs:{{ ppl_path }}"
       state: present
   - name: reload environment variables
     ansible.builtin.shell: source /home/almalinux/.bashrc

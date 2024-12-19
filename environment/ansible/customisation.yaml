@@ -28,6 +28,8 @@
         - unzip
         - ufw
         - java-11-openjdk
+        - golang
+        - nginx
       state: latest
   - name: Set en-GB localization
     shell: "localectl set-locale en_GB.UTF-8"
@@ -38,3 +40,8 @@
       block: "{{ lookup('template', 'files/hostfile.j2') }}"
       dest:  /etc/hosts
       insertafter: "EOF"
+  - name: Start and enable Nginx service
+    ansible.builtin.systemd:
+      name: nginx
+      state: started
+      enabled: yes

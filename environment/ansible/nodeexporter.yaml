@@ -1,0 +1,23 @@
+- name: Setup node-exporter
+  hosts: all
+  become: true
+  become_user: root
+  tasks:
+  - name: accept repo GPG key
+    ansible.builtin.shell:
+      cmd: rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
+  - name: install node-exporter
+    ansible.builtin.dnf:
+      name: golang-github-prometheus-node-exporter
+      state: latest
+  - name: Update node exporter config file
+    ansible.builtin.template:
+      src: files/node_exporter.service.j2
+      dest: /etc/systemd/system/node_exporter.service
+      owner: root
+      group: root
+  - name: start node-exporter
+    ansible.builtin.service:
+      name: node_exporter
+      state: started
+      daemon_reload: true

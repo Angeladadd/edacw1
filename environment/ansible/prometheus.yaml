@@ -1,0 +1,30 @@
+- name: Setup prometheus
+  hosts: hostnode
+  become: true
+  become_user: root
+  tasks:
+  - name: accept repo GPG key
+    ansible.builtin.shell:
+      cmd: rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
+  - name: Install required packages
+    ansible.builtin.yum:
+      name:
+      - golang-github-prometheus
+      - golang-github-prometheus-node-exporter
+      state: present
+      disable_gpg_check: yes
+  - name: Update Prometheus config file
+    ansible.builtin.template:
+      src: files/prometheus.yml.j2
+      dest: /etc/prometheus/prometheus.yml
+  - name: Run Prometheus command
+    ansible.builtin.shell: |
+      nohup prometheus --config.file=/etc/prometheus/prometheus.yml > /var/log/prometheus.log 2>&1 &
+    args:
+      creates: /var/run/prometheus.pid
+  - name: Verify Prometheus is running
+    ansible.builtin.command: pgrep -f prometheus
+    register: prometheus_process
+  - name: Print Prometheus process info
+    ansible.builtin.debug:
+      msg: "Prometheus process ID: {{ prometheus_process.stdout }}"
