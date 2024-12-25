@@ -18,9 +18,18 @@
       state: present
   - name: reload environment variables
     ansible.builtin.shell: source /home/almalinux/.bashrc
-  # - name: create virtual environment
-  #   ansible.builtin.command:
-  #     cmd: python3 -m venv {{ ppl_path }}/venv
-  #     creates: "{{ ppl_path }}/venv/bin/activate"
+  # - name: Create Virtual Environment
+  #   command: "python3 -m venv {{ ppl_path }}/spark_venv"
+  #   args:
+  #     creates: "{{ ppl_path }}/spark_venv"
+  # - name: Install Dependencies in Virtual Environment
+  #   pip:
+  #     requirements: "{{ ppl_path }}/requirements.txt"
+  #     virtualenv: "{{ ppl_path }}/spark_venv"
+  #     virtualenv_python: python3
+  # - name: Zip Virtual Environment Site-Packages
+  #   command: "zip -r {{ ppl_path }}/spark_venv_dependencies.zip . -i {{ ppl_path }}/spark_venv/lib/python3*/site-packages"
+  #   args:
+  #     creates: "{{ ppl_path }}/spark_venv_dependencies.zip"
   # - name: start virtual environment
   #   ansible.builtin.shell: "source {{ ppl_path }}/venv/bin/activate"

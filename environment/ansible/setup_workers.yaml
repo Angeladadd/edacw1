@@ -37,10 +37,17 @@
       owner: almalinux
       group: almalinux
       mode: "0755"
+  - name: create virtual environment
+    ansible.builtin.command:
+      cmd: python3 -m venv {{ ppl_path }}/venv
+      creates: "{{ ppl_path }}/venv/bin/activate"
+  - name: start virtual environment
+    ansible.builtin.shell: "source {{ ppl_path }}/venv/bin/activate"
   - name: install required packages
     ansible.builtin.pip:
       requirements: "{{ ppl_path }}/requirements.txt"
-      executable: pip3
+      virtualenv: "{{ ppl_path }}/venv"
+      virtualenv_python: python3
   - name: copy merizo repo
     ansible.builtin.copy:
       src: /home/almalinux/edacw1/merizo_search
@@ -48,11 +55,18 @@
       owner: almalinux
       group: almalinux
       mode: "0755"
+  - name: Ensure Matplotlib Cache Directory Exists
+    file:
+      path: /tmp/matplotlib
+      state: directory
+      owner: almalinux
+      group: almalinux
+      mode: "0777"
   - name: add to pythonpath
     ansible.builtin.lineinfile:
       path: /home/almalinux/.bashrc
       insertafter: EOF
-      line: "export PYTHONPATH=${PYTHONPATH}:/home/almalinux/merizo_search/merizo_search/programs:{{ ppl_path }}"
+      line: "export PYTHONPATH=${PYTHONPATH}:/home/almalinux/merizo_search/merizo_search/programs:{{ ppl_path }}:{{ ppl_path }}/venv/lib/python3*/site-packages"
       state: present
   - name: reload environment variables
     ansible.builtin.shell: source /home/almalinux/.bashrc

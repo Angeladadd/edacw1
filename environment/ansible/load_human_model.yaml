@@ -12,7 +12,9 @@
     ansible.builtin.get_url:
       dest: /home/almalinux/data/UP000005640_9606_HUMAN_v4.tar
       tmp_dest: /home/almalinux/data/tmp
-      url: https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000005640_9606_HUMAN_v4.tar
+      url: http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000005640_9606_HUMAN_v4.tar
+      timeout: 600
+      validate_certs: no
   - name: Check if Model is already extracted
     ansible.builtin.stat:
       path: "{{ data_dir }}"
@@ -36,7 +38,7 @@
     ignore_errors: yes
   - name: Upload File to HDFS
     ansible.builtin.command:
-      cmd: "/home/almalinux/hadoop-3.4.0/bin/hdfs dfs -copyFromLocal /home/almalinux/data/UP000005640_9606_HUMAN_v4 /UP000005640_9606_HUMAN_v4"
+      cmd: "/home/almalinux/hadoop-3.4.0/bin/hadoop distcp file:///home/almalinux/data/UP000005640_9606_HUMAN_v4 hdfs://hostnode:9000//UP000005640_9606_HUMAN_v4"
     register: upload_result
     ignore_errors: no
     when: hdfs_check.rc != 0  

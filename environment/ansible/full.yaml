@@ -1,11 +1,14 @@
 ---
 
-# - import_playbook: update_dependencies.yaml
+- import_playbook: second_disk.yaml
+- import_playbook: update_dependencies.yaml
 - import_playbook: customisation.yaml
 - import_playbook: ssh_connection.yaml
 - import_playbook: firewall.yaml
+- import_playbook: nodeexporter.yaml
+- import_playbook: prometheus.yaml
+- import_playbook: grafana.yaml
 - import_playbook: install_hadoop.yaml
-- import_playbook: start_hadoop.yaml
 - import_playbook: install_spark.yaml
-- import_playbook: start_spark.yaml
-# - import_playbook: second_disk.yaml
+# - import_playbook: start_hadoop.yaml
+# - import_playbook: start_spark.yaml

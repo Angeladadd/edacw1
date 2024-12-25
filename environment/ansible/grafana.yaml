@@ -1,0 +1,46 @@
+- name: Setup Grafana
+  hosts: hostnode
+  become: true
+  become_user: root
+  vars:
+    grafana_url: "http://localhost:3000"
+    prometheus_url: "https://ucabc46-prometheus.comp0235.condenser.arc.ucl.ac.uk"
+    grafana_user: "admin"
+    grafana_password: "admin"
+  tasks:
+  - name: install grafana
+    ansible.builtin.dnf:
+      name: grafana
+      state: latest
+  - name: Backup grafana.ini
+    ansible.builtin.template:
+      src: files/grafana.ini.j2
+      dest: /etc/grafana/grafana.ini.bak
+  - name: Enable Anonymous Access
+    ansible.builtin.lineinfile:
+      path: /etc/grafana/grafana.ini
+      regexp: '^;?enabled = false'
+      line: 'enabled = true'
+      insertafter: '\[auth.anonymous\]'
+  - name: Set Anonymous Org Role
+    ansible.builtin.lineinfile:
+      path: /etc/grafana/grafana.ini
+      regexp: '^;?org_role = Viewer$'
+      line: 'org_role = Viewer'
+      insertafter: '\[auth.anonymous\]'
+  - name: Reload systemd daemon
+    ansible.builtin.command: systemctl daemon-reload
+  - name: Start Grafana Server
+    ansible.builtin.systemd:
+      name: grafana-server
+      state: started
+  - name: Check Grafana Server status
+    ansible.builtin.shell: systemctl status grafana-server
+    register: grafana_status
+  - name: Display Grafana Server status
+    ansible.builtin.debug:
+      msg: "{{ grafana_status.stdout }}"
+  - name: Enable Grafana Server to start at boot
+    ansible.builtin.systemd:
+      name: grafana-server
+      enabled: yes
