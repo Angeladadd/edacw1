@@ -21,7 +21,7 @@
     register: folder_check
   - name: Make Human model directory
     ansible.builtin.file:
-      path: /home/almalinux/data/UP000005640_9606_HUMAN_v4
+      path: "{{ data_dir }}"
       state: directory
       mode: '0777'
     when: not folder_check.stat.exists
@@ -29,8 +29,10 @@
     ansible.builtin.unarchive:
       remote_src: true
       src: /home/almalinux/data/UP000005640_9606_HUMAN_v4.tar
-      dest: /home/almalinux/data/UP000005640_9606_HUMAN_v4
+      dest: "{{ data_dir }}"
     when: not folder_check.stat.exists
+  - name: Remove non-.pdb files in a directory
+    shell: 'find {{ data_dir }} -type f ! -name "*.pdb.gz" -delete'
   - name: Check if File Exists in HDFS
     ansible.builtin.command:
       cmd: "/home/almalinux/hadoop-3.4.0/bin/hdfs dfs -test -e /UP000005640_9606_HUMAN_v4"

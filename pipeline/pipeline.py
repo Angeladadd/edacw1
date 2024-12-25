@@ -81,6 +81,26 @@ def summary(d1, d2):
         result[k] += v
     return dict(result)
 
+def save_rdd_by_key(row):
+    import os
+    local_output_dir = "/home/almalinux/output"
+    if not os.path.exists(local_output_dir):
+        os.makedirs(local_output_dir)
+
+    filename, content = row
+    path = os.path.join(local_output_dir, filename)
+    with open(path, "w") as f:
+        f.write(content)
+
+def save_summary(spark, path, summary_dict):
+    data = [(k, v) for k, v in summary_dict.items()]
+    df = spark.createDataFrame(data, ["cath_id", "count"])
+    df.write \
+        .option("header", "true") \
+        .mode("overwrite") \
+        .csv(path)
+
+
 def main():
     dataset = sys.argv[1]
     spark = SparkSession.builder.appName("AnalysisPipelineApp").getOrCreate()
@@ -100,20 +120,26 @@ def main():
 
     result_rdd.cache()
 
-    # result_rdd.map(format_output).saveAsHadoopFile(
-    #     f"hdfs://hostnode:9000/{dataset}_parsed",
-    #     outputFormatClass="org.apache.hadoop.mapreduce.lib.output.TextOutputFormat",
-    #     keyClass="org.apache.hadoop.io.Text",
-    #     valueClass="org.apache.hadoop.io.Text"
-    # )
+    # TODO: save to minio
 
+    result_rdd.map(format_output) \
+        .foreach(save_rdd_by_key)
     # .map(parse_file)
     summary_dict = result_rdd.map(lambda r: r[2]) \
           .reduce(summary)
 
-    # Show first 10 lines
-    print("First 10 lines:")
-    print(summary_dict)
+    mean = result_rdd.filter(lambda r: len(r[2]) > 0) \
+    .map(lambda r: r[1]) \
+    .map(lambda x: (x, 1)) \
+    .reduce(lambda a, b: (a[0] + b[0], a[1] + b[1]))
+
+    print("First 20 files:")
+    print("summary: ", summary_dict)
+    print("mean: ", mean[0] / mean[1])
+
+    save_summary(spark, f"hdfs://hostnode:9000/{dataset}_summary.csv", summary_dict)
+
+
     
 
 
