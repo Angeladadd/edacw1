@@ -83,7 +83,7 @@ def summary(d1, d2):
 
 def main():
     dataset = sys.argv[1]
-    spark = SparkSession.builder.appName("AnalisysPipelineApp").getOrCreate()
+    spark = SparkSession.builder.appName("AnalysisPipelineApp").getOrCreate()
 
     sc = spark.sparkContext
     executor_info = sc._jsc.sc().statusTracker().getExecutorInfos()
@@ -108,12 +108,12 @@ def main():
     # )
 
     # .map(parse_file)
-    summary_rdd = result_rdd.map(lambda r: r[1]) \
+    summary_dict = result_rdd.map(lambda r: r[2]) \
           .reduce(summary)
 
     # Show first 10 lines
     print("First 10 lines:")
-    print(summary_rdd.take(10))
+    print(summary_dict)
     
 
 
