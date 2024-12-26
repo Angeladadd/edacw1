@@ -1,5 +1,5 @@
 - name: Install and configure spark
-  hosts: all
+  hosts: hostnode:workers
   vars:
     spark_home: /home/almalinux/spark-3.5.3-bin-hadoop3-scala2.13
   tasks: 

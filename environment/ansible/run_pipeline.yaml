@@ -9,6 +9,7 @@
         spark-submit \
         --master yarn \
         --deploy-mode cluster \
+        --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 \
         --conf spark.executorEnv.MPLCONFIGDIR=/tmp/matplotlib \
         --conf spark.executorEnv.PYSPARK_PYTHON={{ ppl_path }}/venv/bin/python \
         --conf spark.executorEnv.PYTHONPATH={{ ppl_path }}/venv/lib/python3.9/site-packages:$PYTHONPATH \

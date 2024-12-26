@@ -16,7 +16,7 @@ def search(iter):
 
     def save_to_local(row):
         filepath, content = row[0], row[1]
-        id = os.path.basename(filepath.rstrip(".pdb.gz"))
+        id = os.path.basename(filepath.rstrip(".pdb"))
         local_filename = os.path.join(local_input_dir, os.path.basename(f"{id}.pdb"))
         with open(local_filename, "w") as f:
             f.write(content)
@@ -81,49 +81,69 @@ def summary(d1, d2):
         result[k] += v
     return dict(result)
 
-def save_rdd_by_key(row):
-    import os
-    local_output_dir = "/home/almalinux/output"
-    if not os.path.exists(local_output_dir):
-        os.makedirs(local_output_dir)
-
-    filename, content = row
-    path = os.path.join(local_output_dir, filename)
-    with open(path, "w") as f:
-        f.write(content)
-
 def save_summary(spark, path, summary_dict):
     data = [(k, v) for k, v in summary_dict.items()]
     df = spark.createDataFrame(data, ["cath_id", "count"])
-    df.write \
+    df.coalesce(1).write \
         .option("header", "true") \
         .mode("overwrite") \
         .csv(path)
 
 
 def main():
-    dataset = sys.argv[1]
-    spark = SparkSession.builder.appName("AnalysisPipelineApp").getOrCreate()
+    passwd = None
+    with open('/home/almalinux/miniopass', 'r') as file:
+        passwd = file.read().strip()
 
+    dataset = sys.argv[1]
+    spark = SparkSession.builder \
+    .config("spark.hadoop.fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider") \
+    .appName("AnalysisPipelineApp") \
+    .getOrCreate()
+    
     sc = spark.sparkContext
+    broadcast_passwd = sc.broadcast(passwd)
+
+    def save_rdd_by_key(partition):
+        import boto3
+
+        passwd = broadcast_passwd.value
+        s3 = boto3.client("s3",
+                endpoint_url="https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk",
+                aws_access_key_id="myminioadmin",
+                aws_secret_access_key=passwd)
+        bucket = "human-cath-parsed"
+        for row in partition:
+            key, data = row
+            s3.put_object(Bucket=bucket, Key=key, Body=data)
+
+    # sc.setLogLevel("DEBUG")
     executor_info = sc._jsc.sc().statusTracker().getExecutorInfos()
     print("Worker Nodes:")
     for executor in executor_info:
         print(executor.host())
 
+    # https://medium.com/@abdullahdurrani/working-with-minio-and-spark-8b4729daec6e
+    # Set the MinIO access key, secret key, endpoint, and other configurations
+    sc._jsc.hadoopConfiguration().set("fs.s3a.access.key", "myminioadmin")
+    sc._jsc.hadoopConfiguration().set("fs.s3a.secret.key", passwd)
+    sc._jsc.hadoopConfiguration().set("fs.s3a.endpoint", "https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk")
+    sc._jsc.hadoopConfiguration().set("fs.s3a.path.style.access", "true")
+    sc._jsc.hadoopConfiguration().set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+
+
     # Read all files into an RDD
-    rdd = sc.wholeTextFiles(f"hdfs://hostnode:9000/{dataset}/*.pdb.gz")
-        # .withColumn("id", input_file_name()) \
-        # .rdd
-    result_rdd = sc.parallelize(rdd.take(20)) \
+    rdd = sc.wholeTextFiles("s3a://human-alphafolddb/UP000005640_9606_HUMAN_v4/")
+    
+    result_rdd =  sc.parallelize(rdd.take(100)) \
     .mapPartitions(search)
 
     result_rdd.cache()
 
-    # TODO: save to minio
+    # # TODO: save to minio
 
     result_rdd.map(format_output) \
-        .foreach(save_rdd_by_key)
+        .foreachPartition(save_rdd_by_key)
     # .map(parse_file)
     summary_dict = result_rdd.map(lambda r: r[2]) \
           .reduce(summary)
@@ -133,11 +153,11 @@ def main():
     .map(lambda x: (x, 1)) \
     .reduce(lambda a, b: (a[0] + b[0], a[1] + b[1]))
 
-    print("First 20 files:")
+    print("First 100 files:")
     print("summary: ", summary_dict)
     print("mean: ", mean[0] / mean[1])
 
-    save_summary(spark, f"hdfs://hostnode:9000/{dataset}_summary.csv", summary_dict)
+    save_summary(spark, f"s3a://summary/{dataset}_summary.csv", summary_dict)
 
 
     

@@ -1,5 +1,5 @@
 - name: Install and configure hadoop
-  hosts: all
+  hosts: hostnode:workers
   vars:
     hadoop_home: /home/almalinux/hadoop-3.4.0
   tasks: 
@@ -105,6 +105,22 @@
           <name>yarn.resourcemanager.webapp.address</name>
           <value>hostnode:8088</value>
         </property>
+        <property>
+          <name>yarn.scheduler.maximum-allocation-mb</name>
+          <value>10240</value>
+        </property>
+        <property>
+          <name>yarn.nodemanager.resource.memory-mb</name>
+          <value>32768</value>
+        </property>
+        <property>
+          <name>yarn.nodemanager.resource.cpu-vcores</name>
+          <value>12</value>
+        </property>
+        <property>
+          <name>yarn.scheduler.maximum-allocation-vcores</name>
+          <value>12</value>
+        </property>
       state: present
   - name: config mapred-site.xml
     ansible.builtin.blockinfile:
@@ -130,7 +146,7 @@
       state: present
 
 - name: Create tmp directory
-  hosts: all
+  hosts: hostnode:workers
   become: true
   become_user: root
   tasks:
@@ -146,4 +162,3 @@
       owner: almalinux
       group: almalinux
       state: directory
-  

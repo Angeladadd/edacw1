@@ -15,7 +15,14 @@ spark.history.retainedApplications 50
 
 spark.authenticate true
 spark.authenticate.secret "{{lookup('ansible.builtin.password', './.sparkpass', length=16) }}"
+spark.driver.cores 2
+spark.driver.memory 4g
 spark.executor.cores 4
-spark.executor.instances {{ groups['workers'] | length}}
-spark.default.parallelism {{ 2 * groups['workers'] | length  }}
+spark.executor.memory 8g
+spark.executor.instances {{ 3 * groups['workers'] | length}}
+spark.default.parallelism {{ 12 * groups['workers'] | length  }}
 spark.master yarn
+spark.dynamicAllocation.enabled true
+spark.dynamicAllocation.minExecutors {{ groups['workers'] | length}}
+spark.dynamicAllocation.maxExecutors {{ 3 * groups['workers'] | length}}
+spark.dynamicAllocation.initialExecutors {{ groups['workers'] | length}}
