@@ -1,74 +1,30 @@
 - name: Grafana Dashboard
   hosts: hostnode
-  become: true
-  become_user: root
   vars:
-    grafana_url: "http://localhost:3000"
+    grafana_url: "https://ucabc46-grafana.comp0235.condenser.arc.ucl.ac.uk"
     prometheus_url: "https://ucabc46-prometheus.comp0235.condenser.arc.ucl.ac.uk"
     grafana_user: "admin"
     grafana_password: "admin"
   tasks:
-  - name: Create Prometheus Data Source
-    ansible.builtin.uri:
-      url: "{{ grafana_url }}/api/datasources"
-      method: POST
-      user: "{{ grafana_user }}"
-      password: "{{ grafana_password }}"
-      headers:
-        Content-Type: "application/json"
-      body_format: json
-      body: |
-        {
-          "name": "Prometheus",
-          "type": "prometheus",
-          "url": "{{ prometheus_url }}",
-          "access": "proxy",
-          "basicAuth": false,
-          "isDefault": true,
-          "jsonData": {
-            "httpMethod": "POST",
-            "timeout": "30s"
-          }
-        }
-      status_code: 200
-  - name: Create Grafana Dashboard
-    ansible.builtin.uri:
-      url: "{{ grafana_url }}/api/dashboards/db"
-      method: POST
-      user: "{{ grafana_user }}"
-      password: "{{ grafana_password }}"
-      headers:
-        Content-Type: "application/json"
-      body_format: json
-      body: |
-        {
-          "dashboard": {
-            "id": null,
-            "title": "Prometheus Node Metrics",
-            "timezone": "browser",
-            "panels": [
-              {
-                "type": "graph",
-                "title": "Node CPU Usage",
-                "datasource": "Prometheus",
-                "targets": [
-                  {
-                    "expr": "node_cpu_seconds_total",
-                    "interval": "1m",
-                    "format": "time_series"
-                  }
-                ],
-                "gridPos": {
-                  "x": 0,
-                  "y": 0,
-                  "w": 24,
-                  "h": 8
-                }
-              }
-            ],
-            "schemaVersion": 2,
-            "version": 1
-          },
-          "overwrite": true
-        }
-      status_code: 200
+  - name: create prometheus datasource
+    community.grafana.grafana_datasource:
+      url: "{{ grafana_url }}"
+      name: prometheus
+      ds_type: prometheus
+      ds_url: "{{ prometheus_url }}"
+      access: proxy
+      tls_skip_verify: true
+      uid: prometheus-hostnode
+  - name: Copy dashboard config
+    ansible.builtin.copy:
+      src: ./files/dashboard
+      dest: /home/almalinux
+      mode: 0644
+  - name: Create yarn dashboard
+    community.grafana.grafana_dashboard:
+      path: /home/almalinux/dashboard/yarn.json
+      url: "{{ grafana_url }}"
+      url_username: "{{ grafana_user }}"
+      url_password: "{{ grafana_password }}"
+      state: present
+  
