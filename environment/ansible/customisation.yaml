@@ -41,8 +41,8 @@
       block: "{{ lookup('template', 'files/hostfile.j2') }}"
       dest:  /etc/hosts
       insertafter: "EOF"
-  - name: Start and enable Nginx service
-    ansible.builtin.systemd:
-      name: nginx
-      state: started
-      enabled: yes
+  - name: Install Minio command-line
+    ansible.builtin.get_url:
+      dest: /usr/local/bin/mc
+      url: "https://dl.min.io/client/mc/release/linux-amd64/mc"
+      mode: "0755"
