@@ -2,7 +2,7 @@
   hosts: hostnode
   vars:
     ppl_path: "/home/almalinux/pipeline"
-    script_args: "UP000005640_9606_HUMAN_v4"
+    script_args: "ecoli"
   tasks:
   - name: Run Spark-Submit on Master Node
     ansible.builtin.shell: |
@@ -10,6 +10,8 @@
         --master yarn \
         --deploy-mode cluster \
         --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 \
+        --conf spark.yarn.appMasterEnv.PYSPARK_PYTHON={{ ppl_path }}/venv/bin/python \
+        --conf spark.yarn.appMasterEnv.PYTHONPATH={{ ppl_path }}/venv/lib/python3.9/site-packages:$PYTHONPATH \
         --conf spark.executorEnv.MPLCONFIGDIR=/tmp/matplotlib \
         --conf spark.executorEnv.PYSPARK_PYTHON={{ ppl_path }}/venv/bin/python \
         --conf spark.executorEnv.PYTHONPATH={{ ppl_path }}/venv/lib/python3.9/site-packages:$PYTHONPATH \

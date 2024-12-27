@@ -3,7 +3,7 @@
   become: true
   become_user: root
   tasks:
-  - name: accept repo GPG key
+  - name: Accept repo GPG key
     ansible.builtin.shell:
       cmd: rpm --import https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-9
   - name: install node-exporter
@@ -16,7 +16,7 @@
       dest: /etc/systemd/system/node_exporter.service
       owner: root
       group: root
-  - name: start node-exporter
+  - name: Start node-exporter
     ansible.builtin.service:
       name: node_exporter
       state: started

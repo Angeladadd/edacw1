@@ -1,7 +1,7 @@
 - name: Configure datanode in workers
   hosts: workers
   tasks: 
-  - name: create datanode
+  - name: Create datanode
     ansible.builtin.file:
       path: /opt/hadoop_tmp/hdfs/datanode
       state: directory
@@ -10,22 +10,22 @@
   vars:
     hadoop_home: /home/almalinux/hadoop-3.4.0
   tasks: 
-  - name: create namenode
+  - name: Create namenode
     ansible.builtin.file:
       path: /opt/hadoop_tmp/hdfs/namenode
       state: directory
-  - name: generate worker file
+  - name: Generate worker file
     ansible.builtin.template:
       src: files/workers.j2
       dest: "{{ hadoop_home }}/etc/hadoop/workers"
-  - name: stop dfs
+  - name: Stop dfs
     ansible.builtin.shell: "{{ hadoop_home }}/sbin/stop-dfs.sh"
-  - name: stop yarn
+  - name: Stop yarn
     ansible.builtin.shell: "{{ hadoop_home }}/sbin/stop-yarn.sh"
-  - name: format cluster
+  - name: Format cluster
     ansible.builtin.shell: |
         yes | hdfs namenode -format
-  - name: start dfs
+  - name: Start dfs
     ansible.builtin.shell: "nohup {{ hadoop_home }}/sbin/start-dfs.sh"
-  - name: start yarn
+  - name: Start yarn
     ansible.builtin.shell: "nohup {{ hadoop_home }}/sbin/start-yarn.sh"

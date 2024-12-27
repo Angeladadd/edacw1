@@ -42,9 +42,16 @@
     shell: 'find {{ data_dir }} -name "*.gz" -exec gunzip {} +'
   - name: Ensure MinIO alias is configured
     shell: "/usr/local/bin/mc alias set {{ minio_alias }} {{ s3_url }} {{ minio_access_key }} {{ minio_secret_key }}"
-    environment:
-      MC_CONFIG_DIR: "/home/almalinux/.mc"
+  - name: Create MinIO bucket if it does not exist
+    shell: "/usr/local/bin/mc mb --ignore-existing myminio/{{ item }}"
+    with_items:
+      - ecoli-alphafolddb
+      - ecoli-cath-parsed
+      - cath-summary
+  - name: Set up MinIO bucket download policy
+    shell: "/usr/local/bin/mc anonymous set download myminio/{{ item }}"
+    with_items:
+      - ecoli-cath-parsed
+      - cath-summary
   - name: Upload all files to MinIO bucket
     shell: "/usr/local/bin/mc cp --recursive {{ data_dir }}/ {{ minio_alias }}/{{ minio_target_path }}"
-    environment:
-      MC_CONFIG_DIR: "/home/almalinux/.mc"

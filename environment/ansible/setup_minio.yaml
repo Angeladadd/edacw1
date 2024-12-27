@@ -132,29 +132,3 @@
       owner: almalinux
       group: almalinux
       mode: "0600"
-  - name: Set MinIO alias with credentials
-    ansible.builtin.shell: "/usr/local/bin/mc alias set myminio {{ s3_url }} {{ minio_access_key }} {{ minio_secret_key }}"
-  - name: Create MinIO bucket if it does not exist
-    shell: "/usr/local/bin/mc mb --ignore-existing myminio/{{ item }}"
-    with_items:
-      - human-alphafolddb
-      - ecoli-alphafolddb
-      - human-cath-parsed
-      - ecoli-cath-parsed
-      - cath-summary
-  - name: Set up MinIO bucket download policy
-    shell: "/usr/local/bin/mc anonymous set download myminio/{{ item }}"
-    with_items:
-      - human-alphafolddb
-      - ecoli-alphafolddb
-      - human-cath-parsed
-      - ecoli-cath-parsed
-      - cath-summary
-  # TODO: not be this lame
-  - name: Set up MinIO bucket upload policy
-    shell: "/usr/local/bin/mc anonymous set upload myminio/{{ item }}"
-    with_items:
-      - human-cath-parsed
-      - ecoli-cath-parsed
-      - cath-summary
-  

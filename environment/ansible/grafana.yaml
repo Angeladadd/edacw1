@@ -8,7 +8,7 @@
     grafana_user: "admin"
     grafana_password: "admin"
   tasks:
-  - name: install grafana
+  - name: Install grafana
     ansible.builtin.dnf:
       name: grafana
       state: latest
@@ -16,18 +16,6 @@
     ansible.builtin.template:
       src: files/grafana.ini.j2
       dest: /etc/grafana/grafana.ini.bak
-  - name: Enable Anonymous Access
-    ansible.builtin.lineinfile:
-      path: /etc/grafana/grafana.ini
-      regexp: '^;?enabled = false'
-      line: 'enabled = true'
-      insertafter: '\[auth.anonymous\]'
-  - name: Set Anonymous Org Role
-    ansible.builtin.lineinfile:
-      path: /etc/grafana/grafana.ini
-      regexp: '^;?org_role = Viewer$'
-      line: 'org_role = Viewer'
-      insertafter: '\[auth.anonymous\]'
   - name: Reload systemd daemon
     ansible.builtin.command: systemctl daemon-reload
   - name: Start Grafana Server

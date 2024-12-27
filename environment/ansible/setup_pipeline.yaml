@@ -3,21 +3,13 @@
   vars:
     ppl_path: "/home/almalinux/pipeline"
   tasks:
-  - name: copy pipeline scripts
+  - name: Copy pipeline scripts
     ansible.builtin.copy:
       src: /home/almalinux/edacw1/pipeline
       dest: /home/almalinux/
       owner: almalinux
       group: almalinux
       mode: "0755"
-  - name: add to pythonpath
-    ansible.builtin.lineinfile:
-      path: /home/almalinux/.bashrc
-      insertafter: EOF
-      line: "export PYTHONPATH=${PYTHONPATH}:{{ ppl_path }}"
-      state: present
-  - name: reload environment variables
-    ansible.builtin.shell: source /home/almalinux/.bashrc
   # - name: Create Virtual Environment
   #   command: "python3 -m venv {{ ppl_path }}/spark_venv"
   #   args:

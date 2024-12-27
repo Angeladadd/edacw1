@@ -38,7 +38,7 @@
       state: present
   - name: Reload environment variables
     ansible.builtin.shell: source /home/almalinux/.bashrc
-  - name: config core-site.xml
+  - name: Config core-site.xml
     ansible.builtin.blockinfile:
       path: /home/almalinux/hadoop-3.4.0/etc/hadoop/core-site.xml
       insertafter: <configuration>
@@ -53,7 +53,7 @@
             <value>hdfs://hostnode:9000/</value>
         </property>
       state: present
-  - name: config hdfs-site.xml
+  - name: Config hdfs-site.xml
     ansible.builtin.blockinfile:
       path: "{{ hadoop_home }}/etc/hadoop/hdfs-site.xml"
       insertafter: <configuration>
@@ -78,7 +78,7 @@
             <value>1</value> # Based on the number of workers you have
         </property>
       state: present
-  - name: config yarn-site.xml
+  - name: Config yarn-site.xml
     ansible.builtin.blockinfile:
       path: "{{ hadoop_home }}/etc/hadoop/yarn-site.xml"
       insertafter: <configuration>
@@ -115,14 +115,14 @@
         </property>
         <property>
           <name>yarn.nodemanager.resource.cpu-vcores</name>
-          <value>12</value>
+          <value>4</value>
         </property>
         <property>
           <name>yarn.scheduler.maximum-allocation-vcores</name>
-          <value>12</value>
+          <value>4</value>
         </property>
       state: present
-  - name: config mapred-site.xml
+  - name: Config mapred-site.xml
     ansible.builtin.blockinfile:
       path: "{{ hadoop_home }}/etc/hadoop/mapred-site.xml"
       insertafter: <configuration>
@@ -137,7 +137,7 @@
             <value>yarn</value>
         </property>
       state: present
-  - name: fix JAVA_HOME in haddop-env.sh
+  - name: Fix JAVA_HOME in haddop-env.sh
     ansible.builtin.blockinfile:
       path: "{{ hadoop_home }}/etc/hadoop/hadoop-env.sh"
       insertafter: "# export JAVA_HOME="

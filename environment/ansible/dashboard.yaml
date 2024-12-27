@@ -6,7 +6,7 @@
     grafana_user: "admin"
     grafana_password: "admin"
   tasks:
-  - name: create prometheus datasource
+  - name: Create prometheus datasource
     community.grafana.grafana_datasource:
       url: "{{ grafana_url }}"
       name: prometheus

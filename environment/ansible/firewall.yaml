@@ -3,9 +3,9 @@
   become_user: root
   hosts: all
   tasks: 
-  - name: enable ufw
+  - name: Enable ufw
     ansible.builtin.shell: "echo y | ufw enable"
-  - name: allow traffic from cluster hosts
+  - name: Allow traffic from cluster hosts
     ansible.builtin.shell: "ufw allow from {{ item }}"
     loop: "{{ query('inventory_hostnames', 'all')  }}"
 
