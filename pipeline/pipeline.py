@@ -9,7 +9,7 @@ def search(iter):
     import statistics
     import csv
 
-    local_input_dir = "/home/almalinux/input"
+    local_input_dir = "/tmp/input"
 
     if not os.path.exists(local_input_dir):
         os.makedirs(local_input_dir)
@@ -106,16 +106,24 @@ def main():
 
     def save_rdd_by_key(partition):
         import boto3
+        from concurrent.futures import ThreadPoolExecutor
 
         passwd = broadcast_passwd.value
         s3 = boto3.client("s3",
                 endpoint_url="https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk",
                 aws_access_key_id="myminioadmin",
                 aws_secret_access_key=passwd)
-        bucket = "human-cath-parsed"
-        for row in partition:
-            key, data = row
-            s3.put_object(Bucket=bucket, Key=key, Body=data)
+        bucket = "ecoli-cath-parsed"
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            futures = [executor.submit(
+                lambda key, data: s3.put_object(Bucket=bucket, Key=key, Body=data),
+                row[0], row[1]
+                ) for row in partition]
+            for future in futures:
+                try:
+                    future.result()
+                except Exception as e:
+                    print(f"Error uploading: {e}")
 
     # sc.setLogLevel("DEBUG")
     executor_info = sc._jsc.sc().statusTracker().getExecutorInfos()
@@ -133,10 +141,10 @@ def main():
 
 
     # Read all files into an RDD
-    rdd = sc.wholeTextFiles("s3a://human-alphafolddb/UP000005640_9606_HUMAN_v4/")
+    rdd = sc.wholeTextFiles("s3a://ecoli-alphafolddb/", minPartitions=120)
     
-    result_rdd =  sc.parallelize(rdd.take(100)) \
-    .mapPartitions(search)
+    print("Number of partitions: ", rdd.getNumPartitions())
+    result_rdd = rdd.mapPartitions(search)
 
     result_rdd.cache()
 
@@ -149,15 +157,14 @@ def main():
           .reduce(summary)
 
     mean = result_rdd.filter(lambda r: len(r[2]) > 0) \
-    .map(lambda r: r[1]) \
-    .map(lambda x: (x, 1)) \
+    .map(lambda r: (r[1], 1)) \
     .reduce(lambda a, b: (a[0] + b[0], a[1] + b[1]))
 
     print("First 100 files:")
     print("summary: ", summary_dict)
     print("mean: ", mean[0] / mean[1])
 
-    save_summary(spark, f"s3a://summary/{dataset}_summary.csv", summary_dict)
+    save_summary(spark, f"s3a://cath-summary/{dataset}_summary.csv", summary_dict)
 
 
     
