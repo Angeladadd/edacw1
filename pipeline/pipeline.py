@@ -44,7 +44,6 @@ def search(iter):
             print(err)
             # raise Exception(str(err) + str(local_ip))
     def parse_file(id):
-        local_input_dir = "/home/almalinux/input"
         cath_ids = defaultdict(int)
         plDDT_values = []
         search_file = os.path.join(local_input_dir, f"{id}.pdb_search.tsv")

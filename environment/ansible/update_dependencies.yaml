@@ -7,5 +7,3 @@
     ansible.builtin.dnf:
       name: "*"
       state: latest
-  - name: Reboot
-    reboot:

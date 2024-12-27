@@ -1,5 +1,12 @@
 - name: Download E.coli AlphaFoldDB Model Data
   hosts: storagenode
+  vars:
+    data_dir: /home/almalinux/data/UP000000625_83333_ECOLI_v4
+    minio_alias: myminio
+    minio_target_path: ecoli-alphafolddb
+    minio_access_key: myminioadmin
+    minio_secret_key: "{{ lookup('ansible.builtin.file', './.miniopass') }}"
+    s3_url: "https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk"
   tasks:
   - name: Make tmp directory
     ansible.builtin.file:
@@ -11,13 +18,33 @@
       dest: /home/almalinux/data/UP000000625_83333_ECOLI_v4.tar
       tmp_dest: /home/almalinux/data/tmp
       url: https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000625_83333_ECOLI_v4.tar
-  - name: Make E.coli model directory
+      timeout: 600
+      validate_certs: no
+  - name: Check if Model is already extracted
+    ansible.builtin.stat:
+      path: "{{ data_dir }}"
+    register: folder_check
+  - name: Make Ecoli model directory
     ansible.builtin.file:
-      path: /home/almalinux/data/UP000000625_83333_ECOLI_v4
+      path: "{{ data_dir }}"
       state: directory
       mode: '0777'
-  - name: Unpack E.coli AlphaFoldDB models archive
+    when: not folder_check.stat.exists
+  - name: Unpack Ecoli AlphaFoldDB models archive
     ansible.builtin.unarchive:
       remote_src: true
       src: /home/almalinux/data/UP000000625_83333_ECOLI_v4.tar
-      dest: /home/almalinux/data/UP000000625_83333_ECOLI_v4
+      dest: "{{ data_dir }}"
+    when: not folder_check.stat.exists
+  - name: Remove non-.pdb files in a directory
+    shell: 'find {{ data_dir }} -type f ! -name "*.pdb.gz" -delete'
+  - name: Unzip all remaining gzipped files (PDB files)
+    shell: 'find {{ data_dir }} -name "*.gz" -exec gunzip {} +'
+  - name: Ensure MinIO alias is configured
+    shell: "/usr/local/bin/mc alias set {{ minio_alias }} {{ s3_url }} {{ minio_access_key }} {{ minio_secret_key }}"
+    environment:
+      MC_CONFIG_DIR: "/home/almalinux/.mc"
+  - name: Upload all files to MinIO bucket
+    shell: "/usr/local/bin/mc cp --recursive {{ data_dir }}/ {{ minio_alias }}/{{ minio_target_path }}"
+    environment:
+      MC_CONFIG_DIR: "/home/almalinux/.mc"

@@ -56,6 +56,6 @@
     environment:
       MC_CONFIG_DIR: "/home/almalinux/.mc"
   - name: Upload all files to MinIO bucket
-    shell: "/usr/local/bin/mc cp --recursive {{ data_dir }} {{ minio_alias }}/{{ minio_target_path }}"
+    shell: "/usr/local/bin/mc cp --recursive {{ data_dir }}/ {{ minio_alias }}/{{ minio_target_path }}"
     environment:
       MC_CONFIG_DIR: "/home/almalinux/.mc"
