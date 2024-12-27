@@ -5,7 +5,7 @@
     cath_foldclassdb_path: "/home/almalinux/db/cath_foldclassdb"
     ppl_path: "/home/almalinux/pipeline"
   tasks:
-  - name: Make db directory
+  - name: Make DB directory
     ansible.builtin.file:
       path: "{{ db_path }}"
       state: directory
@@ -55,18 +55,10 @@
       owner: almalinux
       group: almalinux
       mode: "0755"
-  - name: Ensure Matplotlib Cache Directory Exists
+  - name: Ensure Matplotlib cache directory exists
     file:
       path: /tmp/matplotlib
       state: directory
       owner: almalinux
       group: almalinux
       mode: "0777"
-  # - name: add to pythonpath
-  #   ansible.builtin.lineinfile:
-  #     path: /home/almalinux/.bashrc
-  #     insertafter: EOF
-  #     line: "export PYTHONPATH=${PYTHONPATH}:/home/almalinux/merizo_search/merizo_search/programs:{{ ppl_path }}:{{ ppl_path }}/venv/lib/python3*/site-packages"
-  #     state: present
-  # - name: reload environment variables
-  #   ansible.builtin.shell: source /home/almalinux/.bashrc

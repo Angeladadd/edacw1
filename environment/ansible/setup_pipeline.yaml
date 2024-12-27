@@ -10,6 +10,12 @@
       owner: almalinux
       group: almalinux
       mode: "0755"
+  - name: Zip 'utils' folder
+    archive:
+      path: "{{ ppl_path }}/utils"
+      dest: "{{ ppl_path }}/utils.zip"
+      format: zip
+
   # - name: Create Virtual Environment
   #   command: "python3 -m venv {{ ppl_path }}/spark_venv"
   #   args:

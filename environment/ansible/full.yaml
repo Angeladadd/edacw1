@@ -18,3 +18,4 @@
 - import_playbook: load_human_model.yaml
 - import_playbook: start_hadoop.yaml
 - import_playbook: start_spark.yaml
+- import_playbook: setup_workers.yaml

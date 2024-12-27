@@ -2,9 +2,9 @@
   hosts: hostnode
   vars:
     ppl_path: "/home/almalinux/pipeline"
-    script_args: "ecoli"
+    script_args: "human"
   tasks:
-  - name: Run Spark-Submit on Master Node
+  - name: Run spark-submit
     ansible.builtin.shell: |
         spark-submit \
         --master yarn \
@@ -15,10 +15,11 @@
         --conf spark.executorEnv.MPLCONFIGDIR=/tmp/matplotlib \
         --conf spark.executorEnv.PYSPARK_PYTHON={{ ppl_path }}/venv/bin/python \
         --conf spark.executorEnv.PYTHONPATH={{ ppl_path }}/venv/lib/python3.9/site-packages:$PYTHONPATH \
+        --py-files {{ ppl_path }}/utils.zip \
         {{ ppl_path }}/pipeline.py {{ script_args }}
     args:
       executable: /bin/bash
     register: spark_submit_result
-  - name: Show Spark Submit Result
+  - name: Show spark submit result
     ansible.builtin.debug:
       msg: "{{ spark_submit_result.stdout_lines }}"

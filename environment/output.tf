@@ -21,3 +21,15 @@ output storage_vm_ips {
 output storage_vm_ids {
   value = harvester_virtualmachine.storagevm.*.id
 }
+
+output grafana_hostname {
+  value = harvester_virtualmachine.hostvm[*].tags["condenser_ingress_grafana_hostname"]
+}
+
+output prometheus_hostname {
+  value = harvester_virtualmachine.hostvm[*].tags["condenser_ingress_prometheus_hostname"]
+}
+
+output s3_hostname {
+  value = harvester_virtualmachine.storagevm[*].tags["condenser_ingress_s3_hostname"]
+}
