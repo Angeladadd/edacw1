@@ -15,19 +15,3 @@
       path: "{{ ppl_path }}/utils"
       dest: "{{ ppl_path }}/utils.zip"
       format: zip
-
-  # - name: Create Virtual Environment
-  #   command: "python3 -m venv {{ ppl_path }}/spark_venv"
-  #   args:
-  #     creates: "{{ ppl_path }}/spark_venv"
-  # - name: Install Dependencies in Virtual Environment
-  #   pip:
-  #     requirements: "{{ ppl_path }}/requirements.txt"
-  #     virtualenv: "{{ ppl_path }}/spark_venv"
-  #     virtualenv_python: python3
-  # - name: Zip Virtual Environment Site-Packages
-  #   command: "zip -r {{ ppl_path }}/spark_venv_dependencies.zip . -i {{ ppl_path }}/spark_venv/lib/python3*/site-packages"
-  #   args:
-  #     creates: "{{ ppl_path }}/spark_venv_dependencies.zip"
-  # - name: start virtual environment
-  #   ansible.builtin.shell: "source {{ ppl_path }}/venv/bin/activate"

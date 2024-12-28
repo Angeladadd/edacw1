@@ -31,22 +31,21 @@ def app():
     broadcast_dataset = sc.broadcast(dataset)
 
     # Define UDFs
-    def search_and_parse(row):
-        import os
-        from utils.merizoutils import run_merizo_search, parse_result, write_local
+    def search_and_parse(partition):
+        from utils.merizoutils import run_merizo_search, parse_results, batch_write_tmp_local, clean_tmp_local
 
-        # Create a local folder for merizo search input/output
-        local_input_dir = "/tmp/input"
-        if not os.path.exists(local_input_dir):
-            os.makedirs(local_input_dir)
-
-        filepath, content = row
-        id = os.path.basename(filepath.rstrip(".pdb"))
-        local_filepath = os.path.join(local_input_dir, os.path.basename(f"{id}.pdb"))
-        write_local(local_filepath, content)
-        run_merizo_search(local_filepath)
-        mean, cath_ids = parse_result(local_input_dir, id)
-        return (id, mean, cath_ids)
+        # run in batch to avoid being killed by merizo
+        batch_size = 8
+        results = []
+        partition = list(partition)
+        for i in range(0, len(partition), batch_size):
+            batch = partition[i:i + batch_size]
+            local_dir = batch_write_tmp_local(batch, parallelism=4)
+            output_prefix = f"{local_dir}/output"
+            run_merizo_search(local_dir, output_prefix, parallelism=2)
+            results += parse_results(output_prefix)
+            clean_tmp_local(local_dir)
+        return results # [(id, mean, cath_ids)]
     
     def save_to_s3(partition):
         from utils.s3utils import S3Client
@@ -56,14 +55,10 @@ def app():
         dataset = broadcast_dataset.value
         # Create S3 client
         s3 = S3Client(endpoint_url="https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk",
-                    access_key="myminioadmin",
-                    secret_key=passwd)
+                    access_key="myminioadmin", secret_key=passwd, parallelism=8)
         bucket = f"{dataset}-cath-parsed"
-        files = [format_output(cath_ids=row[2],
-                               bodyonly=False,
-                               id=row[0],
-                               mean=row[1]
-                               ) for row in partition]
+        files = [format_output(cath_ids=row[2], bodyonly=False,
+                               id=row[0], mean=row[1]) for row in partition]
         s3.batch_upload(bucket, files)
         return
     
@@ -77,11 +72,11 @@ def app():
         return dict(result)
 
     # Read all files into an RDD
-    rdd = sc.wholeTextFiles(f"s3a://{dataset}-alphafolddb/", minPartitions=120)
+    rdd = sc.wholeTextFiles(f"s3a://{dataset}-alphafolddb/", minPartitions=1200)
     
     print("Number of partitions: ", rdd.getNumPartitions())
-    result_rdd = rdd.map(search_and_parse)
-    # result_rdd = sc.parallelize(rdd.take(100)).map(search_and_parse)
+    result_rdd = rdd.mapPartitions(search_and_parse)
+    # result_rdd = sc.parallelize(rdd.take(500), 30).mapPartitions(search_and_parse)
 
     result_rdd.cache()
     result_rdd.foreachPartition(save_to_s3)

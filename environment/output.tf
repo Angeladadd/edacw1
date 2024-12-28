@@ -31,5 +31,5 @@ output prometheus_hostname {
 }
 
 output s3_hostname {
-  value = harvester_virtualmachine.storagevm[*].tags["condenser_ingress_s3_hostname"]
+  value = harvester_virtualmachine.storagevm[*].tags["condenser_ingress_os_hostname"]
 }

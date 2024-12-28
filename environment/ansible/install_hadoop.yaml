@@ -12,6 +12,10 @@
       dest: /home/almalinux/hadoop.tar.gz
       url: "https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz"
     when: not hadoop_folder_check.stat.exists
+    register: download_result
+    until: download_result is succeeded
+    retries: 3
+    delay: 10
   - name: Unpack tgz file
     ansible.builtin.unarchive:
       dest: /home/almalinux/
@@ -85,6 +89,10 @@
       marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
       block: |
         <property>
+            <name>yarn.nodemanager.webapp.address</name>
+            <value>{{inventory_hostname}}:8042</value>
+        </property>
+        <property>
             <name>yarn.resourcemanager.resource-tracker.address</name>
             <value>hostnode:8025</value>
         </property>
@@ -107,7 +115,7 @@
         </property>
         <property>
           <name>yarn.scheduler.maximum-allocation-mb</name>
-          <value>10240</value>
+          <value>16384</value>
         </property>
         <property>
           <name>yarn.nodemanager.resource.memory-mb</name>
@@ -119,7 +127,7 @@
         </property>
         <property>
           <name>yarn.scheduler.maximum-allocation-vcores</name>
-          <value>4</value>
+          <value>2</value>
         </property>
       state: present
   - name: Config mapred-site.xml
