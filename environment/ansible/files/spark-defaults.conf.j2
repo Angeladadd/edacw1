@@ -8,7 +8,7 @@ spark.yarn.submit.waitAppCompletion false
 spark.eventLog.enabled true
 spark.eventLog.dir hdfs://hostnode:9000/spark-logs
 
-# History server for completed jobs (optional)
+# History server for completed jobs
 spark.history.fs.logDirectory hdfs://hostnode:9000/user/spark/applicationHistory
 spark.history.ui.port 18080
 spark.history.retainedApplications 50
@@ -19,7 +19,7 @@ spark.master yarn
 spark.driver.cores 1
 spark.driver.memory 2g
 spark.executor.cores 1
-spark.executor.memory 8g
+spark.executor.memory 12g
 spark.default.parallelism {{  groups['workers'] | length  }}
 spark.executor.instances {{  groups['workers'] | length  }}
 spark.dynamicAllocation.enabled true

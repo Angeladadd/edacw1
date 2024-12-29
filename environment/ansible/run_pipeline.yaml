@@ -2,7 +2,7 @@
   hosts: hostnode
   vars:
     ppl_path: "/home/almalinux/pipeline"
-    script_args: "human"
+    script_args: "ecoli --partitions 300"
   tasks:
   - name: Run spark-submit
     ansible.builtin.shell: |
