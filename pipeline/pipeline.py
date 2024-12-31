@@ -7,7 +7,7 @@ def app(config):
     # Create a Spark session
     spark = SparkSession.builder \
     .config("spark.hadoop.fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider") \
-    .appName("AnalysisPipelineApp") \
+    .appName("MerizoSearchPipeline") \
     .getOrCreate()
     
     # Setup S3A access
@@ -24,8 +24,8 @@ def app(config):
     bc_config = sc.broadcast(config)
 
     # Define UDFs
-    def search_and_parse(partition):
-        from utils.merizoutils import run_merizo_search, batch_write_tmp_local, clean_tmp_local, parse_and_save
+    def merizo(partition):
+        from utils.merizoutils import batch_search_and_parse
         from utils.s3utils import S3Client
         # run in batch to avoid being killed by merizo
         batch_size = 8
@@ -36,11 +36,8 @@ def app(config):
                       secret_key=config["s3"]["secret_key"], parallelism=8)
         for i in range(0, len(partition), batch_size):
             batch = partition[i:i + batch_size]
-            local_dir = batch_write_tmp_local(batch, parallelism=4)
-            output_prefix = f"{local_dir}/output"
-            run_merizo_search(local_dir, output_prefix, parallelism=2)
-            results += parse_and_save(output_prefix, s3, config["dataset"]["output_bucket"])
-            clean_tmp_local(local_dir)
+            results += batch_search_and_parse(batch, s3, config["dataset"]["output_bucket"],
+                                              parallelism=2, retry=3)
         return results # [(id, mean, cath_ids)]
     
     def summary(d1, d2):
@@ -58,7 +55,7 @@ def app(config):
     print("Number of partitions: ", rdd.getNumPartitions())
     if config["test"]:
         rdd = sc.parallelize(rdd.take(500), 30)
-    result_rdd = rdd.mapPartitions(search_and_parse)
+    result_rdd = rdd.mapPartitions(merizo)
 
     filtered_rdd = result_rdd.filter(lambda r: len(r[2]) > 0)
     filtered_rdd.cache()
@@ -101,7 +98,7 @@ if __name__ == "__main__":
         "dataset": {
             "name": args.dataset,
             "input_bucket": f"{args.dataset}-alphafolddb",
-            "output_bucket": f"{args.dataset}-cath-parsed",
+            "output_bucket": f"{args.dataset}-cath-parsed-test",
             "summary_bucket": "cath-summary",
             "summary_key": f"{args.dataset}_cath_summary.csv",
             "partitions": args.partitions,

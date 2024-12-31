@@ -1,0 +1,29 @@
+from io import StringIO
+import os
+import uuid
+from concurrent.futures import ThreadPoolExecutor, wait
+import shutil
+
+def to_tsv_string(df):
+    """
+    Convert a pandas DataFrame to a TSV string
+    """
+    csv_buffer = StringIO()
+    df.to_csv(csv_buffer, index=False, sep='\t')
+    return csv_buffer.getvalue()
+
+
+def batch_write_tmp_local(files, parallelism=4):
+    local_dir = f"/tmp/merizo_{uuid.uuid4()}"
+    os.makedirs(local_dir)
+    def write_file(filename, content):
+        file_path = os.path.join(local_dir, os.path.basename(filename))
+        with open(file_path, 'w') as file:
+            file.write(content)
+    with ThreadPoolExecutor(max_workers=parallelism) as executor:
+        futures = [executor.submit(write_file, filename, content) for filename, content in files]
+        wait(futures)
+    return local_dir
+
+def clean_tmp_local(local_dir):
+    shutil.rmtree(local_dir)
