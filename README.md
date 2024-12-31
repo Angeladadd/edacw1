@@ -1,51 +1,77 @@
 # Coursework for Engineering for Data Analysis 1
 
+@author: Chenge Sun <chenge.sun.24@ucl.ac.uk>
+
 ### Deployment
 
-disable host key checking
+1. disable host key checking
 ```sh
 vim  ~/.ssh/config
+# add the following conf to ~/.ssh/config
 Host *
         StrictHostKeyChecking accept-new
 ```
-
+2. setup machines and environments
 ```sh
-cd <path to repo>/environment
+# clone repository
+git clone git@github.com:Angeladadd/edacw1.git
+cd /path/to/edacw1/environment
 # create vms
 terraform init
 terraform apply
 # install dependencies
 chmod +x generate_inventory.py
 ansible-playbook -i generate_inventory.py ansible/full.yaml
+# load dataset
+ansible-playbook -i generate_inventory.py ansible/load_human_model.yaml
 ```
 
-### Verification
+3. run the analysis script
 
-1. verify the data storage node
+    There are two ways to analysis pipeline:
+    
+    1. From the laptop/cnc-machine that provisions the VMs
+
+    ```sh
+    ansible-playbook -i generate_inventory.py ansible/run.yaml
+    ```
+
+    2. From host node we created in previous step
+
+    ```sh
+    ssh <hostnode ip>
+    cd ~/pipeline
+    
+    ```
+
+
+### Access Results
+
+1. install minio client
+
+  for Mac OS
+  ```sh
+  brew install minio/stable/mc
+  ```
+
+  for Linux
+  ```sh
+  wget https://dl.min.io/client/mc/release/linux-amd64/mc
+  chmod +x mc
+  sudo mv mc /usr/local/bin/
+  ```
+
+2. download .parsed file
 
 ```sh
-[almalinux@ucabc46-storage-01-36292bae40 ~]$ lsblk
-NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
-vda    252:0    0   10G  0 disk
-├─vda1 252:1    0    1M  0 part
-├─vda2 252:2    0  200M  0 part /boot/efi
-├─vda3 252:3    0    1G  0 part /boot
-└─vda4 252:4    0  8.8G  0 part /
-vdb    252:16   0  200G  0 disk
-└─vdb1 252:17   0  200G  0 part /data
-vdc    252:32   0    1M  0 disk
-[almalinux@ucabc46-storage-01-36292bae40 ~]$ df -h
-Filesystem      Size  Used Avail Use% Mounted on
-devtmpfs        4.0M     0  4.0M   0% /dev
-tmpfs           3.9G     0  3.9G   0% /dev/shm
-tmpfs           1.6G  8.7M  1.6G   1% /run
-/dev/vda4       8.8G 1011M  7.8G  12% /
-/dev/vda3       960M  130M  831M  14% /boot
-/dev/vda2       200M  7.1M  193M   4% /boot/efi
-/dev/vdb1       200G  1.5G  199G   1% /data
-tmpfs           784M     0  784M   0% /run/user/1000
+curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4.parsed
 ```
 
+### Monitoring
+
+Grafana Dashboard: https://ucabc46-grafana.comp0235.condenser.arc.ucl.ac.uk/d/yarn-cluster-resource-hostnode/yarn-cluster-resource?orgId=1
+
+Username: admin, Password: admin
 
 ### Development
 
@@ -53,14 +79,15 @@ tmpfs           784M     0  784M   0% /run/user/1000
 
 install rsync on remote machine and create remote target folder
 
-```
+```sh
 sudo dnf install rsync
-git clone
+git clone git@github.com:Angeladadd/edacw1.git
+cd path/to/edacw1
 ```
 
 setup auto sync on local machine
 
-```
+```sh
 vim ~/.ssh/config
 # append in ~/.ssh/config
 Host condenser-vm1
@@ -68,5 +95,5 @@ Host condenser-vm1
   User almalinux
   ProxyJump condenser-proxy
 
-sh sync.sh
+sh tools/sync.sh
 ```
