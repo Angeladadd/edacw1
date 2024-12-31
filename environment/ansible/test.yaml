@@ -1,0 +1,20 @@
+- name: Test pipeline
+  hosts: hostnode
+  tasks:
+   - name: App master environment setup
+    include_role:
+      name: pipeline
+      tasks_from: appmasterenv.yaml
+  - name: Run pipeline
+    include_role:
+      name: pipeline
+      tasks_from: run.yaml
+    vars:
+      dataset: ecoli
+      s3url: "{{ s3_url }}"
+      input_bucket: ecoli-alphafolddb
+      output_bucket: ecoli-cath-parsed
+      summary_bucket: cath-summary
+      script_args: "--partitions 300"
+
+

@@ -1,0 +1,166 @@
+- name: Check if Hadoop is already extracted
+  ansible.builtin.stat:
+    path: "{{ hadoop_home }}"
+  register: hadoop_folder_check
+
+- name: Download hadoop
+  ansible.builtin.get_url:
+    dest: /home/almalinux/hadoop.tar.gz
+    url: "https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz"
+  when: not hadoop_folder_check.stat.exists
+  register: download_result
+  until: download_result is succeeded
+  retries: 3
+  delay: 10
+
+- name: Unpack tgz file
+  ansible.builtin.unarchive:
+    dest: /home/almalinux/
+    remote_src: true
+    src: /home/almalinux/hadoop.tar.gz
+  when: not hadoop_folder_check.stat.exists
+
+- name: Set permissions to hadoop directory
+  ansible.builtin.file:
+    path: "{{ hadoop_home }}"
+    state: directory
+    mode: '0777'
+    recurse: yes
+
+- name: Remove hadoop tar file
+  ansible.builtin.file:
+    path: "/home/almalinux/hadoop.tar.gz"
+    state: absent
+
+- name: Set hadoop environment
+  ansible.builtin.blockinfile:
+    path: /home/almalinux/.bashrc
+    block: |
+      export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+      export HADOOP_HOME={{ hadoop_home }}
+      export HADOOP_INSTALL=$HADOOP_HOME
+      export YARN_HOME=$HADOOP_HOME
+      export PATH=$PATH:$HADOOP_INSTALL/bin:$HADOOP_HOME/sbin:$HOME/spark-3.5.3-bin-hadoop3-scala2.13/bin
+      export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+      export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
+      export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native
+    state: present
+
+- name: Reload environment variables
+  ansible.builtin.shell: source /home/almalinux/.bashrc
+
+- name: Config core-site.xml
+  ansible.builtin.blockinfile:
+    path: /home/almalinux/hadoop-3.4.0/etc/hadoop/core-site.xml
+    insertafter: <configuration>
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    block: |
+      <property>
+          <name>fs.default.name</name>
+          <value>hdfs://hostnode:9000/</value>
+      </property>
+      <property>
+          <name>fs.default.FS</name>
+          <value>hdfs://hostnode:9000/</value>
+      </property>
+    state: present
+
+- name: Config hdfs-site.xml
+  ansible.builtin.blockinfile:
+    path: "{{ hadoop_home }}/etc/hadoop/hdfs-site.xml"
+    insertafter: <configuration>
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    block: |
+      <property>
+          <name>dfs.datanode.data.dir</name>
+          <value>/opt/hadoop_tmp/hdfs/datanode</value>
+          <final>true</final>
+      </property>
+      <property>
+          <name>dfs.namenode.name.dir</name>
+          <value>/opt/hadoop_tmp/hdfs/namenode</value>
+          <final>true</final>
+      </property>
+      <property>
+          <name>dfs.namenode.http-address</name>
+          <value>hostnode:50070</value>
+      </property>
+      <property>
+          <name>dfs.replication</name>
+          <value>1</value> # Based on the number of workers you have
+      </property>
+    state: present
+
+- name: Config yarn-site.xml
+  ansible.builtin.blockinfile:
+    path: "{{ hadoop_home }}/etc/hadoop/yarn-site.xml"
+    insertafter: <configuration>
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    block: |
+      <property>
+          <name>yarn.nodemanager.webapp.address</name>
+          <value>{{inventory_hostname}}:8042</value>
+      </property>
+      <property>
+          <name>yarn.resourcemanager.resource-tracker.address</name>
+          <value>hostnode:8025</value>
+      </property>
+      <property>
+          <name>yarn.resourcemanager.scheduler.address</name>
+          <value>hostnode:8035</value>
+      </property>
+      <property>
+          <name>yarn.resourcemanager.address</name>
+          <value>hostnode:8050</value>
+      </property>
+      <property>
+          <name>yarn.log-aggregation-enable</name>
+          <value>true</value>
+      </property>
+      <!-- Enable the ResourceManager web interface -->
+      <property>
+        <name>yarn.resourcemanager.webapp.address</name>
+        <value>hostnode:8088</value>
+      </property>
+      <property>
+        <name>yarn.scheduler.maximum-allocation-mb</name>
+        <value>16384</value>
+      </property>
+      <property>
+        <name>yarn.nodemanager.resource.memory-mb</name>
+        <value>32768</value>
+      </property>
+      <property>
+        <name>yarn.nodemanager.resource.cpu-vcores</name>
+        <value>4</value>
+      </property>
+      <property>
+        <name>yarn.scheduler.maximum-allocation-vcores</name>
+        <value>4</value>
+      </property>
+    state: present
+
+- name: Config mapred-site.xml
+  ansible.builtin.blockinfile:
+    path: "{{ hadoop_home }}/etc/hadoop/mapred-site.xml"
+    insertafter: <configuration>
+    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    block: |
+      <property>
+          <name>mapreduce.job.tracker</name>
+          <value>hostnode:5431</value>
+      </property>
+      <property>
+          <name>mapred.framework.name</name>
+          <value>yarn</value>
+      </property>
+    state: present
+
+- name: Fix JAVA_HOME in hadoop-env.sh
+  ansible.builtin.blockinfile:
+    path: "{{ hadoop_home }}/etc/hadoop/hadoop-env.sh"
+    insertafter: "# export JAVA_HOME="
+    block: |
+      export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+    state: present

@@ -1,0 +1,23 @@
+- name: Create prometheus datasource
+  community.grafana.grafana_datasource:
+    url: "{{ grafana_url }}"
+    name: prometheus
+    ds_type: prometheus
+    ds_url: "{{ prometheus_url }}"
+    access: proxy
+    tls_skip_verify: true
+    uid: prometheus-hostnode
+
+- name: Copy dashboard config
+  ansible.builtin.copy:
+    src: ./files/dashboard
+    dest: /home/almalinux
+    mode: 0644
+
+- name: Create yarn dashboard
+  community.grafana.grafana_dashboard:
+    path: /home/almalinux/dashboard/yarn.json
+    url: "{{ grafana_url }}"
+    url_username: "{{ grafana_user }}"
+    url_password: "{{ grafana_password }}"
+    state: present

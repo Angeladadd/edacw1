@@ -1,0 +1,4 @@
+# - import_playbook: common.yaml
+# - import_playbook: data.yaml
+- import_playbook: monitor.yaml
+# - import_playbook: cluster.yaml

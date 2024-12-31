@@ -1,0 +1,5 @@
+- name: Copy the pass to target hosts
+  copy:
+    src: /tmp/miniopass
+    dest: /home/almalinux/miniopass
+    mode: "0644"

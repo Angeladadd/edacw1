@@ -1,0 +1,35 @@
+---
+- name: Install hadoop and spark
+  hosts: workers:hostnode
+  roles:
+    - cluster
+
+- name: Create tmp directory
+  hosts: workers:hostnode
+  become: true
+  become_user: root
+  tasks:
+    - name: Create tmp directory
+      include_role:
+        name: cluster
+        tasks_from: hadooptmp.yaml
+
+- name: Set up hadoop datanode
+  hosts: workers
+  tasks:
+    - name: Set up hadoop datanode
+      include_role:
+        name: cluster
+        tasks_from: hadoopdatanode.yaml
+
+- name: Start hadoop and Spark
+  hosts: hostnode
+  tasks:
+    - name: Start hadoop
+      include_role:
+        name: cluster
+        tasks_from: start_hadoop.yaml
+    - name: Start spark
+      include_role:
+        name: cluster
+        tasks_from: start_spark.yaml

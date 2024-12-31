@@ -1,0 +1,17 @@
+---
+- name: Set up nodeexporter
+  hosts: all
+  become: true
+  become_user: root
+  tasks:
+    - name: Set up nodeexporter
+      include_role:
+        name: monitor
+        tasks_from: nodeexporter.yaml
+
+- name: Set Up Monitoring
+  hosts: hostnode
+  become: true
+  become_user: root
+  roles:
+    - monitor

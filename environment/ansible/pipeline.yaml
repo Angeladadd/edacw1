@@ -1,0 +1,46 @@
+---
+- name: Prepare pipeline worker environment
+  hosts: workers
+  tasks:
+  - name: Worker environment setup
+    include_role:
+      name: pipeline
+      tasks_from: workerenv.yaml
+
+- name: Prepare pipeline host environment
+  hosts: hostnode
+  tasks:
+  - name: App master environment setup
+    include_role:
+      name: pipeline
+      tasks_from: appmasterenv.yaml
+
+- name: Run pipeline with Ecoli dataset
+  hosts: hostnode
+  tasks:
+  - name: Run pipeline
+    include_role:
+      name: pipeline
+      tasks_from: run.yaml
+    vars:
+      dataset: ecoli
+      s3url: "{{ s3_url }}"
+      input_bucket: ecoli-alphafolddb
+      output_bucket: ecoli-cath-parsed
+      summary_bucket: cath-summary
+      script_args: "--partitions 300"
+
+- name: Run pipeline with Human dataset
+  hosts: hostnode
+  tasks:
+  - name: Run pipeline
+    include_role:
+      name: pipeline
+      tasks_from: run.yaml
+    vars:
+      dataset: human
+      s3url: "{{ s3_url }}"
+      input_bucket: human-alphafolddb
+      output_bucket: human-cath-parsed
+      summary_bucket: cath-summary
+      script_args: "--partitions 1200"

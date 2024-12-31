@@ -1,0 +1,4 @@
+---
+- import_tasks: prometheus.yaml
+- import_tasks: grafana.yaml
+- import_tasks: dashboard.yaml

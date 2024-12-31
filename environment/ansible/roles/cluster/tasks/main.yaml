@@ -1,0 +1,3 @@
+---
+- import_tasks: install_hadoop.yaml
+- import_tasks: install_spark.yaml

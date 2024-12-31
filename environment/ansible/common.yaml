@@ -1,0 +1,23 @@
+---
+- name: Setup system environment
+  hosts: all
+  become: yes
+  become_user: root
+  roles:
+    - system
+
+- name: Generate shared SSH keys
+  hosts: hostnode
+  tasks:
+    - name: Generate SSH keys
+      include_role:
+        name: system
+        tasks_from: commonkeys.yaml
+
+- name: Set up ssh connection
+  hosts: all
+  tasks:
+    - name: Share common keys
+      include_role:
+        name: system
+        tasks_from: sharecommonkeys.yaml

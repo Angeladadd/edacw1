@@ -1,0 +1,39 @@
+---
+- name: Setup storage
+  hosts: storagenode
+  become_user: root
+  become: yes
+  roles:
+    - role: storage
+
+- name: Share miniopass
+  hosts: hostnode:workers
+  tasks:
+    - name: Share miniopass
+      include_role:
+        name: storage
+        tasks_from: shareminiopass.yaml
+
+- name: Load datasets
+  hosts: storagenode
+  tasks:
+    - name: Load Ecoli dataset
+      include_role:
+        name: storage
+        tasks_from: load_data.yaml
+      vars:
+        data_url: https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000000625_83333_ECOLI_v4.tar
+        data_dir: /home/almalinux/data/UP000000625_83333_ECOLI_v4
+        data_tar_dir: /home/almalinux/data/UP000000625_83333_ECOLI_v4.tar
+        input_bucket: ecoli-alphafolddb
+        output_bucket: ecoli-cath-parsed
+    - name: Load Human dataset
+      include_role:
+        name: storage
+        tasks_from: load_data.yaml
+      vars:
+        data_url: https://ftp.ebi.ac.uk/pub/databases/alphafold/latest/UP000005640_9606_HUMAN_v4.tar
+        data_dir: /home/almalinux/data/UP000005640_9606_HUMAN_v4
+        data_tar_dir: /home/almalinux/data/UP000005640_9606_HUMAN_v4.tar
+        input_bucket: human-alphafolddb
+        output_bucket: human-cath-parsed

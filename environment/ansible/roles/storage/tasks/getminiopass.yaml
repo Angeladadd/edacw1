@@ -1,0 +1,5 @@
+- name: Fetch the pass from minio server
+  fetch:
+    src: /home/almalinux/miniopass
+    dest: /tmp/miniopass
+    flat: yes

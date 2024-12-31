@@ -79,6 +79,12 @@ def app(config):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("dataset", type=str, help="The dataset to process")
+    parser.add_argument("s3url", type=str,
+                        default="https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk",
+                        help="S3 endpoint URL that stores the data")
+    parser.add_argument("input_bucket", type=str, help="The input bucket name")
+    parser.add_argument("output_bucket", type=str, help="The output bucket name")
+    parser.add_argument("summary_bucket", type=str, help="The summary bucket name")
     parser.add_argument("--partitions", type=int, default=1200, help="Number of partitions to use")
     parser.add_argument("--test", action="store_true", help="Run the pipeline with a small subset of the data")
     args = parser.parse_args()
@@ -93,12 +99,12 @@ if __name__ == "__main__":
         "s3": {
             "access_key": "myminioadmin",
             "secret_key": passwd,
-            "endpoint_url": "https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk",
+            "endpoint_url": args.s3url,
         },
         "dataset": {
             "name": args.dataset,
-            "input_bucket": f"{args.dataset}-alphafolddb",
-            "output_bucket": f"{args.dataset}-cath-parsed",
+            "input_bucket": args.input_bucket,
+            "output_bucket": args.output_bucket,
             "summary_bucket": "cath-summary",
             "summary_key": f"{args.dataset}_cath_summary.csv",
             "partitions": args.partitions,

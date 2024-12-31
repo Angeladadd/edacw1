@@ -1,0 +1,4 @@
+---
+- import_tasks: second_disk.yaml
+- import_tasks: setup_minio.yaml
+- import_tasks: getminiopass.yaml

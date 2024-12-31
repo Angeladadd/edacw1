@@ -1,0 +1,13 @@
+- name: Copy pipeline scripts
+  ansible.builtin.copy:
+    src: /home/almalinux/edacw1/pipeline
+    dest: /home/almalinux/
+    owner: almalinux
+    group: almalinux
+    mode: "0755"
+
+- name: Zip 'utils' folder
+  archive:
+    path: "{{ ppl_path }}/utils"
+    dest: "{{ ppl_path }}/utils.zip"
+    format: zip

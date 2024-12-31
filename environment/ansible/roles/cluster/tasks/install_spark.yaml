@@ -1,0 +1,30 @@
+- name: Check if Spark is already extracted
+  ansible.builtin.stat:
+    path: "{{ spark_home }}"
+  register: spark_folder_check
+
+- name: Download spark .jar
+  ansible.builtin.get_url:
+    dest: /home/almalinux/spark.tgz
+    url: "https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3-scala2.13.tgz"
+  when: not spark_folder_check.stat.exists
+
+- name: Unpack tgz file
+  ansible.builtin.unarchive:
+    dest: /home/almalinux/
+    remote_src: true
+    src: /home/almalinux/spark.tgz
+    owner: almalinux
+    group: almalinux
+    mode: '0777'
+  when: not spark_folder_check.stat.exists
+
+- name: Remove spark tgz file
+  ansible.builtin.file:
+    path: "/home/almalinux/spark.tgz"
+    state: absent
+
+- name: Write config file
+  ansible.builtin.template:
+    src: files/spark-defaults.conf.j2
+    dest: /home/almalinux/spark-3.5.3-bin-hadoop3-scala2.13/conf/spark-defaults.conf

@@ -39,6 +39,7 @@ def app(config):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("dataset", type=str, help="Dataset to analyse the pipeline results")
     args = parser.parse_args()
     
     # Process arguments
@@ -53,9 +54,9 @@ if __name__ == "__main__":
             "endpoint_url": "https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk",
         },
         "dataset": {
-            "name": "ecoli",
-            "input_bucket": "ecoli-alphafolddb",
-            "output_bucket": "ecoli-cath-parsed"
+            "name": args.dataset,
+            "input_bucket": f"{args.dataset}-alphafolddb",
+            "output_bucket": f"{args.dataset}-cath-parsed"
         },
     }
     app(config)

@@ -1,0 +1,30 @@
+- name: Install grafana
+  ansible.builtin.dnf:
+    name: grafana
+    state: latest
+
+- name: Backup grafana.ini
+  ansible.builtin.template:
+    src: files/grafana.ini.j2
+    dest: /etc/grafana/grafana.ini.bak
+
+- name: Reload systemd daemon
+  ansible.builtin.command: systemctl daemon-reload
+
+- name: Start Grafana Server
+  ansible.builtin.systemd:
+    name: grafana-server
+    state: started
+
+- name: Check Grafana Server status
+  ansible.builtin.shell: systemctl status grafana-server
+  register: grafana_status
+
+- name: Display Grafana Server status
+  ansible.builtin.debug:
+    msg: "{{ grafana_status.stdout }}"
+
+- name: Enable Grafana Server to start at boot
+  ansible.builtin.systemd:
+    name: grafana-server
+    enabled: yes

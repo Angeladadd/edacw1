@@ -1,0 +1,3 @@
+---
+hadoop_home: /home/almalinux/hadoop-3.4.0
+spark_home: /home/almalinux/spark-3.5.3-bin-hadoop3-scala2.13

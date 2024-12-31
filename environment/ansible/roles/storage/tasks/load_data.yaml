@@ -1,0 +1,57 @@
+- name: Make tmp directory
+  ansible.builtin.file:
+    path: /home/almalinux/data/tmp
+    state: directory
+    mode: '0755'
+
+- name: Download data models
+  ansible.builtin.get_url:
+    dest: "{{ data_tar_dir }}"
+    tmp_dest: /home/almalinux/data/tmp
+    url: "{{ data_url }}"
+    timeout: 600
+    validate_certs: no
+
+- name: Check if Model is already extracted
+  ansible.builtin.stat:
+    path: "{{ data_dir }}"
+  register: folder_check
+
+- name: Make data directory
+  ansible.builtin.file:
+    path: "{{ data_dir }}"
+    state: directory
+    mode: '0777'
+  when: not folder_check.stat.exists
+
+- name: Unpack models archive
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: "{{ data_tar_dir }}"
+    dest: "{{ data_dir }}"
+  when: not folder_check.stat.exists
+
+- name: Remove non-.pdb files in a directory
+  shell: 'find {{ data_dir }} -type f ! -name "*.pdb.gz" -delete'
+
+- name: Unzip all remaining gzipped files (PDB files)
+  shell: 'find {{ data_dir }} -name "*.gz" -exec gunzip {} +'
+
+- name: Ensure MinIO alias is configured
+  shell: "/usr/local/bin/mc alias set {{ minio_alias }} {{ s3_url }} {{ minio_access_key }} {{ minio_secret_key }}"
+
+- name: Create MinIO bucket if it does not exist
+  shell: "/usr/local/bin/mc mb --ignore-existing myminio/{{ item }}"
+  with_items:
+    - "{{ input_bucket }}"
+    - "{{ output_bucket }}"
+    - cath-summary
+
+- name: Set up MinIO bucket download policy
+  shell: "/usr/local/bin/mc anonymous set download myminio/{{ item }}"
+  with_items:
+    - "{{ output_bucket }}"
+    - cath-summary
+
+- name: Upload all files to MinIO bucket
+  shell: "/usr/local/bin/mc cp --recursive {{ data_dir }}/ {{ minio_alias }}/{{ input_bucket }}"

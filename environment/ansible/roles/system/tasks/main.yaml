@@ -1,0 +1,5 @@
+---
+- import_tasks: update_dependencies.yaml
+- import_tasks: customisation.yaml
+- import_tasks: firewall.yaml
+- import_tasks: reboot.yaml

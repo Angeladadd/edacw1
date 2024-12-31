@@ -1,0 +1,31 @@
+- name: Create namenode
+  ansible.builtin.file:
+    path: /opt/hadoop_tmp/hdfs/namenode
+    state: directory
+
+- name: Generate worker file
+  ansible.builtin.template:
+    src: files/workers.j2
+    dest: "{{ hadoop_home }}/etc/hadoop/workers"
+
+- name: Stop dfs
+  ansible.builtin.shell: "{{ hadoop_home }}/sbin/stop-dfs.sh"
+
+- name: Stop yarn
+  ansible.builtin.shell: "{{ hadoop_home }}/sbin/stop-yarn.sh"
+
+- name: Check if the NameNode directory is already formatted
+  ansible.builtin.stat:
+    path: /opt/hadoop_tmp/hdfs/namenode/current/VERSION
+  register: namenode_version
+
+- name: Format the NameNode (only if not formatted)
+  ansible.builtin.shell: |
+    yes | hdfs namenode -format
+  when: not namenode_version.stat.exists
+
+- name: Start dfs
+  ansible.builtin.shell: "nohup {{ hadoop_home }}/sbin/start-dfs.sh"
+
+- name: Start yarn
+  ansible.builtin.shell: "nohup {{ hadoop_home }}/sbin/start-yarn.sh"
