@@ -17,14 +17,14 @@ def app(config):
     sc._jsc.hadoopConfiguration().set("fs.s3a.path.style.access", "true")
     sc._jsc.hadoopConfiguration().set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
 
-    input_df = sc.wholeTextFiles(f"s3a://human-alphafolddb/", 200).toDF(["filename", "content"])
-    output_df = sc.wholeTextFiles(f"s3a://human-cath-parsed/", 200).toDF(["filename", "content"])
+    input_df = sc.wholeTextFiles(f"s3a://{config['dataset']['input_bucket']}/", 200).toDF(["filename", "content"])
+    output_df = sc.wholeTextFiles(f"s3a://{config['dataset']['output_bucket']}/", 200).toDF(["filename", "content"])
 
-    input_df = input_df.withColumn("id", regexp_extract(col("filename"), "^s3a://human-alphafolddb/(.*)\.pdb$", 1))
+    input_df = input_df.withColumn("id", regexp_extract(col("filename"), f"^s3a://{config['dataset']['input_bucket']}/(.*)\.pdb$", 1))
     
-    parsed_df = output_df.filter(col("filename").endswith(".parsed")).withColumn("id", regexp_extract(col("filename"), "^s3a://human-cath-parsed/(.*)\.parsed$", 1))
-    search_df = output_df.filter(col("filename").endswith("_search.tsv")).withColumn("id", regexp_extract(col("filename"), "^s3a://human-cath-parsed/(.*)_search\.tsv$", 1))
-    segment_df = output_df.filter(col("filename").endswith("_segment.tsv")).withColumn("id", regexp_extract(col("filename"), "^s3a://human-cath-parsed/(.*)_segment\.tsv$", 1))
+    parsed_df = output_df.filter(col("filename").endswith(".parsed")).withColumn("id", regexp_extract(col("filename"), f"^s3a://{config['dataset']['output_bucket']}/(.*)\.parsed$", 1))
+    search_df = output_df.filter(col("filename").endswith("_search.tsv")).withColumn("id", regexp_extract(col("filename"), f"^s3a://{config['dataset']['output_bucket']}/(.*)_search\.tsv$", 1))
+    segment_df = output_df.filter(col("filename").endswith("_segment.tsv")).withColumn("id", regexp_extract(col("filename"), f"^s3a://{config['dataset']['output_bucket']}/(.*)_segment\.tsv$", 1))
 
     # find input without segment files
     missing_segment = input_df.join(segment_df, "id", "left_anti").select("id")
@@ -33,9 +33,9 @@ def app(config):
     # find input without parsed files
     missing_parsed = input_df.join(parsed_df, "id", "left_anti").select("id")
 
-    missing_segment.coalesce(1).write.mode("overwrite").csv("s3a://report/missing_segment", header=True)
-    missing_search.coalesce(1).write.mode("overwrite").csv("s3a://report/missing_search", header=True)
-    missing_parsed.coalesce(1).write.mode("overwrite").csv("s3a://report/missing_parsed", header=True)
+    missing_segment.coalesce(1).write.mode("overwrite").csv(f"s3a://report/{config['dataset']['name']}_missing_segment", header=True)
+    missing_search.coalesce(1).write.mode("overwrite").csv(f"s3a://report/{config['dataset']['name']}_missing_search", header=True)
+    missing_parsed.coalesce(1).write.mode("overwrite").csv(f"s3a://report/{config['dataset']['name']}_missing_parsed", header=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -51,6 +51,11 @@ if __name__ == "__main__":
             "access_key": "myminioadmin",
             "secret_key": passwd,
             "endpoint_url": "https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk",
-        }
+        },
+        "dataset": {
+            "name": "ecoli",
+            "input_bucket": "ecoli-alphafolddb",
+            "output_bucket": "ecoli-cath-parsed"
+        },
     }
     app(config)

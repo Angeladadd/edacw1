@@ -98,7 +98,7 @@ if __name__ == "__main__":
         "dataset": {
             "name": args.dataset,
             "input_bucket": f"{args.dataset}-alphafolddb",
-            "output_bucket": f"{args.dataset}-cath-parsed-test",
+            "output_bucket": f"{args.dataset}-cath-parsed",
             "summary_bucket": "cath-summary",
             "summary_key": f"{args.dataset}_cath_summary.csv",
             "partitions": args.partitions,
