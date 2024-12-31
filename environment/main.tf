@@ -130,7 +130,7 @@ resource "harvester_virtualmachine" "workervm" {
   tags = {
     condenser_ingress_isEnabled = true
     condenser_ingress_isAllowed = true
-    condenser_ingress_sparklog_hostname = "${var.username}-sparklog-${format("%02d", count.index + 1)}"
+    condenser_ingress_sparklog_hostname = "${var.username}-workernode${ count.index + 1 }"
     condenser_ingress_sparklog_port = 8042
     condenser_ingress_sparklog_nginx_proxy-body-size = "10000000m"
   }

@@ -2,10 +2,10 @@
   hosts: hostnode
   vars:
     ppl_path: "/home/almalinux/pipeline"
-    script_args: "ecoli --partitions 300"
+    script_args: "human --test --partitions 600"
   tasks:
   - name: Run spark-submit
-    ansible.builtin.shell: |
+    shell: |
         spark-submit \
         --master yarn \
         --deploy-mode cluster \
@@ -16,10 +16,12 @@
         --conf spark.executorEnv.PYSPARK_PYTHON={{ ppl_path }}/venv/bin/python \
         --conf spark.executorEnv.PYTHONPATH={{ ppl_path }}/venv/lib/python3.9/site-packages:$PYTHONPATH \
         --py-files {{ ppl_path }}/utils.zip \
-        {{ ppl_path }}/pipeline.py {{ script_args }}
-    args:
-      executable: /bin/bash
-    register: spark_submit_result
-  - name: Show spark submit result
-    ansible.builtin.debug:
-      msg: "{{ spark_submit_result.stdout_lines }}"
+        {{ ppl_path }}/pipeline.py {{ script_args }} 2>&1
+    register: spark_submit_output
+  - name: Extract application ID
+    set_fact:
+      spark_application_id: "{{ spark_submit_output.stdout | regex_search('application_[0-9_]+') }}"
+  - name: Print application ID
+    debug:
+      msg: |
+        Spark Application UI: {{ yarn_url }}/proxy/{{ spark_application_id }}
