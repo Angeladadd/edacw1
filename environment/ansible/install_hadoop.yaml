@@ -127,7 +127,7 @@
         </property>
         <property>
           <name>yarn.scheduler.maximum-allocation-vcores</name>
-          <value>2</value>
+          <value>4</value>
         </property>
       state: present
   - name: Config mapred-site.xml

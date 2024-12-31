@@ -2,7 +2,7 @@
   hosts: hostnode
   vars:
     ppl_path: "/home/almalinux/pipeline"
-    script_args: "human --test --partitions 600"
+    script_args: "ecoli --partitions 300"
   tasks:
   - name: Run spark-submit
     shell: |

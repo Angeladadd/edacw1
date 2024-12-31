@@ -9,9 +9,13 @@ spark.eventLog.enabled true
 spark.eventLog.dir hdfs://hostnode:9000/spark-logs
 
 # History server for completed jobs
+# https://spark.apache.org/docs/latest/monitoring.html
 spark.history.fs.logDirectory hdfs://hostnode:9000/user/spark/applicationHistory
 spark.history.ui.port 18080
-spark.history.retainedApplications 50
+spark.history.retainedApplications 20
+# spark.history.custom.executor.log.url 
+# test
+spark.ui.reverseProxy true
 
 spark.authenticate true
 spark.authenticate.secret "{{lookup('ansible.builtin.password', './.sparkpass', length=16) }}"

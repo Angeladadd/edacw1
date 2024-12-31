@@ -1,12 +1,11 @@
 - name: Start spark master
   hosts: hostnode
   tasks: 
-  - name: Start spark master
-    ansible.builtin.shell: spark-3.5.3-bin-hadoop3-scala2.13/sbin/start-master.sh 
+  # - name: Start spark master
+  #   ansible.builtin.shell: spark-3.5.3-bin-hadoop3-scala2.13/sbin/start-master.sh 
   - name: Create Spark Log Directory
     command: hadoop fs -mkdir -p /spark-logs
-- name: Start spark workers
-  hosts: workers
-  tasks: 
-  - name: Start spark workers
-    ansible.builtin.shell: spark-3.5.3-bin-hadoop3-scala2.13/sbin/start-worker.sh hostnode:7077
+  - name: Create Spark Log History Directory
+    command: hadoop fs -mkdir -p /user/spark/applicationHistory
+  - name: Start spark history server
+    ansible.builtin.shell: spark-3.5.3-bin-hadoop3-scala2.13/sbin/start-history-server.sh
