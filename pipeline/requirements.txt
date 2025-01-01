@@ -28,3 +28,4 @@ torch==2.5.1+cpu
 typing_extensions==4.12.2
 boto3==1.35.87
 pandas==2.2.3
+tenacity==9.0.0
