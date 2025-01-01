@@ -10,7 +10,8 @@
     --conf spark.executorEnv.PYSPARK_PYTHON={{ ppl_path }}/venv/bin/python \
     --conf spark.executorEnv.PYTHONPATH={{ ppl_path }}/venv/lib/python3.9/site-packages:$PYTHONPATH \
     --py-files {{ ppl_path }}/utils.zip \
-    {{ ppl_path }}/pipeline.py {{ dataset }} {{ script_args }} 2>&1
+    {{ ppl_path }}/pipeline.py {{ dataset }} {{ s3_url }} {{ input_bucket }} {{ output_bucket }} {{ summary_bucket}} \
+    {{ script_args }} 2>&1
   register: spark_submit_output
 
 - name: Extract application ID

@@ -1,3 +1,4 @@
 ---
 grafana_user: "admin"
 grafana_password: "admin"
+textfile_collector_dir: "/var/lib/node_exporter/textfile_collector"

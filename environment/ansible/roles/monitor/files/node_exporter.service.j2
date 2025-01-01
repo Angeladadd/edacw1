@@ -6,7 +6,10 @@ After=network.target
 User=root
 Group=root
 Type=simple
-ExecStart=/usr/bin/node_exporter
+ExecStart=/usr/bin/node_exporter \
+  --collector.textfile.directory={{ textfile_collector_dir }} \
+  --web.listen-address=:9100
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

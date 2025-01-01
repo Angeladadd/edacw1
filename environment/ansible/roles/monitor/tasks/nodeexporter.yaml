@@ -7,6 +7,14 @@
     name: golang-github-prometheus-node-exporter
     state: latest
 
+- name: Create Textfile Collector directory
+  ansible.builtin.file:
+    path: "{{ textfile_collector_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0777'
+
 - name: Update node exporter config file
   ansible.builtin.template:
     src: files/node_exporter.service.j2
@@ -17,5 +25,6 @@
 - name: Start node-exporter
   ansible.builtin.service:
     name: node_exporter
+    enabled: yes
     state: started
     daemon_reload: true

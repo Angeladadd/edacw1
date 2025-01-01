@@ -5,6 +5,7 @@ from io import StringIO
 import pandas as pd
 import logging
 from .ioutils import to_tsv_string, batch_write_tmp_local, clean_tmp_local
+from .metricsutils import write_metrics
 
 
 def batch_search_and_parse(
@@ -37,6 +38,7 @@ def batch_search_and_parse(
                              python_path, merizo_path, db_path, parallelism)
     output_prefixs = []
     if code != 0:
+        failed_count = 0
         logging.error(f"merizo search failed with exit code {code}.")
         # run search one by one with retry
         for file, _ in files:
@@ -52,9 +54,13 @@ def batch_search_and_parse(
                     output_prefixs.append(single_prefix)
                     break 
                 if i == retry - 1:
+                    failed_count += 1
                     logging.error(f"merizo search for {file} failed with {retry} times retry.")
+        write_metrics("merizo_search_succeed", len(files) - failed_count)
+        write_metrics("merizo_search_failed", failed_count)
     else:
         output_prefixs.append(output_prefix)
+        write_metrics("merizo_search_succeed", len(files))
     results = parse_and_save(output_prefixs, s3client, output_bucket)
     clean_tmp_local(local_dir)
     return results
