@@ -1,7 +1,9 @@
 import boto3
 import botocore.exceptions
+import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Tuple
+from tenacity import retry, stop_after_attempt
 
 class S3Client:
     def __init__(self, access_key, secret_key, endpoint_url, parallelism=8):
@@ -14,6 +16,7 @@ class S3Client:
     def upload(self, bucket, key, data):
         self.client.put_object(Bucket=bucket, Key=key, Body=data)
     
+    @retry(stop=stop_after_attempt(3))
     def download(self, bucket_name, key) -> Tuple[bool, str]:
         content = None
         try:
@@ -25,6 +28,7 @@ class S3Client:
             raise e
         return True, content
 
+    @retry(stop=stop_after_attempt(3))
     def batch_upload(self, bucket, files):
         with ThreadPoolExecutor(max_workers=self.parallelism) as executor:
             futures = {executor.submit(
@@ -36,4 +40,5 @@ class S3Client:
                 try:
                     future.result()
                 except Exception as e:
-                    print(f"Error processing row {filename}: {e}")
+                    logging.error(f"Error processing row {filename}: {e}")
+                    raise e
