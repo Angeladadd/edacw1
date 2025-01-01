@@ -63,9 +63,6 @@ resource "harvester_virtualmachine" "hostvm" {
   tags = {
     condenser_ingress_isEnabled = true
     condenser_ingress_isAllowed = true
-    condenser_ingress_spark_hostname = "${var.username}-spark"
-    condenser_ingress_spark_port = 4040
-    condenser_ingress_spark_nginx_proxy-body-size = "10000000m"
     condenser_ingress_sparkhistory_hostname = "${var.username}-sparkhistory"
     condenser_ingress_sparkhistory_port = 18080
     condenser_ingress_sparkhistory_nginx_proxy-body-size = "10000000m"

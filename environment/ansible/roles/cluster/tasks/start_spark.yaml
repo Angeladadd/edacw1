@@ -1,8 +1,8 @@
-- name: Create Spark Log Directory
-  command: hadoop fs -mkdir -p /spark-logs
+- name: Stop spark history server
+  ansible.builtin.shell: spark-3.5.3-bin-hadoop3-scala2.13/sbin/stop-history-server.sh
 
-- name: Create Spark Log History Directory
-  command: hadoop fs -mkdir -p /user/spark/applicationHistory
+- name: Create Spark Log Directory
+  command: hadoop fs -mkdir -p /spark-history
 
 - name: Start spark history server
   ansible.builtin.shell: spark-3.5.3-bin-hadoop3-scala2.13/sbin/start-history-server.sh
