@@ -1,0 +1,2 @@
+---
+nodetoken: "{{ lookup('file', 'node-token') }}"

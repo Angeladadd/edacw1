@@ -3,5 +3,13 @@ bootcmd:
   - [ dnf, config-manager, --set-enabled, crb ]
   - [ dnf, install, -y, epel-release ]
 
+yum_repos:
+  docker-ce-stable:
+    name: Docker CE Stable - $basearch
+    baseurl: https://download.docker.com/linux/centos/$releasever/$basearch/stable
+    enabled: true 
+    gpgcheck: true
+    gpgkey: https://download.docker.com/linux/centos/gpg
+
 ssh_authorized_keys:
   - ${public_key_openssh}

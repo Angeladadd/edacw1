@@ -1,0 +1,51 @@
+- name: Setup Docker
+  hosts: hostnode:workers
+  become: true
+  become_user: root
+  tasks:
+    - name: Setup Docker
+      include_role:
+        name: k3s
+        tasks_from: docker.yaml
+
+- name: Setup K3s
+  hosts: hostnode
+  become: true
+  become_user: root
+  tasks:
+    - name: Setup K3s
+      include_role:
+        name: k3s
+        tasks_from: headnode.yaml
+
+- name: Setup K3s
+  hosts: workers
+  become: true
+  become_user: root
+  tasks:
+    - name: Setup K3s
+      include_role:
+        name: k3s
+        tasks_from: workers.yaml
+
+- name: Build Docker Image for PySpark Executor
+  hosts: all
+  become: true
+  collections:
+    - community.docker
+  tasks:
+    - name: Copy pipeline scripts
+      ansible.builtin.copy:
+        src: /home/almalinux/edacw1/pipeline
+        dest: /home/almalinux/
+        owner: almalinux
+        group: almalinux
+        mode: "0755"
+    # - name: Build Docker Image
+    #   community.docker.docker_image:
+    #     name: custom-pyspark-executor
+    #     tag: latest
+    #     build:
+    #       path: /home/almalinux/pipeline
+    #     source: build
+    #     state: present

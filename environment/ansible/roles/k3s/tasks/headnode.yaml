@@ -1,0 +1,66 @@
+- name: Add /usr/local/bin to $PATH
+  ansible.builtin.copy:
+    content: "export PATH=/usr/local/bin:$PATH"
+    dest: "/etc/profile.d/usrlocal.sh"
+
+- name: Create directory for registry file [1].
+  ansible.builtin.file:
+    path: "/etc/rancher"
+    state: directory
+
+- name: Create directory for registry file [2].
+  ansible.builtin.file:
+    path: "/etc/rancher/k3s"
+    state: directory
+
+- name: Create minimal registries.yaml for public Docker Hub
+  ansible.builtin.copy:
+    dest: "/etc/rancher/k3s/registries.yaml"
+    content: |
+      mirrors:
+        docker.io:
+          endpoint:
+            - "https://registry-1.docker.io"
+      configs: {}
+    mode: "0640"
+    owner: root
+    group: docker
+
+- name: Download and install K3s
+  ansible.builtin.shell: "curl -sfL https://get.k3s.io | bash -"
+
+- name: Set KUBECONFIG.
+  ansible.builtin.copy:
+    content: "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml"
+    dest: "/etc/profile.d/kubeconf.sh"
+
+- name: Set permissions on KUBECONFIG
+  ansible.builtin.file:
+    path: "/etc/rancher/k3s/k3s.yaml"
+    owner: "root"
+    group: "docker"
+    mode: "0640"
+
+- name: Fetch kubeconf
+  ansible.builtin.fetch:
+    dest: .generated/
+    flat: true
+    src: /etc/rancher/k3s/k3s.yaml
+
+- name: Install Helm tools
+  ansible.builtin.shell: "curl -sfL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash -l -"
+
+- name: Add Bitnami repo
+  ansible.builtin.shell: "/usr/local/bin/helm repo add bitnami https://charts.bitnami.com/bitnami"
+
+- name: Add JupyterHub repo
+  ansible.builtin.shell: "/usr/local/bin/helm repo add jupyterhub https://hub.jupyter.org/helm-chart/"
+
+- name: Refresh helm repos
+  ansible.builtin.shell: "/usr/local/bin/helm repo update"
+
+- name: Get token
+  ansible.builtin.fetch:
+    src: "/var/lib/rancher/k3s/server/node-token"
+    dest: "./"
+    flat: true
