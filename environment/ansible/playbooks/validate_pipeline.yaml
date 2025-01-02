@@ -1,10 +1,30 @@
 - name: Run Analysis Pipeline
   hosts: hostnode
   vars:
+    report_bucket: "report"
+    minio_access_key: "myminioadmin"
+    minio_secret_key: "ajWs,GcEyoqx-u7-"
+    minio_alias: "myminio"
     ppl_path: "/home/almalinux/pipeline"
-    dataset: "ecoli"
+    dataset: "human"
     script_args: ""
   tasks:
+  - name: Ensure MinIO alias is configured
+    shell: "/usr/local/bin/mc alias set {{ minio_alias }} {{ s3_url }} {{ minio_access_key }} {{ minio_secret_key }}"
+  - name: Create MinIO bucket if it does not exist
+    shell: "/usr/local/bin/mc mb --ignore-existing myminio/{{ report_bucket }}"
+  - name: Copy pipeline scripts
+    ansible.builtin.copy:
+      src: /home/almalinux/edacw1/pipeline
+      dest: /home/almalinux/
+      owner: almalinux
+      group: almalinux
+      mode: "0755"
+  - name: Zip 'utils' folder
+    archive:
+      path: "{{ ppl_path }}/utils"
+      dest: "{{ ppl_path }}/utils.zip"
+      format: zip
   - name: Run spark-submit
     shell: |
         spark-submit \
@@ -19,7 +39,7 @@
         --py-files {{ ppl_path }}/utils.zip \
         --conf spark.executor.cores=4 \
         --conf spark.executor.memory=4g \
-        {{ ppl_path }}/report.py {{ dataset }} {{ script_args }} 2>&1
+        {{ ppl_path }}/validate.py {{ dataset }} {{ script_args }} 2>&1
     register: spark_submit_output
   - name: Extract application ID
     set_fact:

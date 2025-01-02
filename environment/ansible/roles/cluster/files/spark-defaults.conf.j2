@@ -4,18 +4,22 @@ spark.yarn.submit.waitAppCompletion false
 # https://spark.apache.org/docs/latest/monitoring.html
 spark.eventLog.enabled true
 spark.eventLog.dir hdfs://hostnode:9000/spark-history
+spark.eventLog.rolling.enabled true
+spark.eventLog.rolling.maxFileSize	128m
 spark.history.fs.logDirectory hdfs://hostnode:9000/spark-history
+spark.history.provider org.apache.spark.deploy.history.FsHistoryProvider
 spark.history.ui.port 18080
 spark.history.retainedApplications 20
-# spark.history.custom.executor.log.url 
-spark.ui.reverseProxy true
+spark.history.custom.executor.log.url https://ucabc46-reverseproxy.comp0235.condenser.arc.ucl.ac.uk/logs/spark/
 # https://docs.cloudera.com/HDPDocuments/HDP2/HDP-2.3.6/bk_installing_manually_book/content/ch19s04s01.html
 spark.yarn.historyServer.address hostnode:18080
+spark.log.server.url https://ucabc46-sparkhistory.comp0235.condenser.arc.ucl.ac.uk/
 # not sure how to save container logs https://spark.apache.org/docs/latest/running-on-yarn.html
 
 spark.authenticate true
 spark.authenticate.secret "{{lookup('ansible.builtin.password', './.sparkpass', length=16) }}"
-spark.master yarn
+
+# Spark runtime
 spark.driver.cores 1
 spark.driver.memory 2g
 spark.executor.cores 1
@@ -28,3 +32,18 @@ spark.dynamicAllocation.maxExecutors {{ 2 * groups['workers'] | length}}
 spark.dynamicAllocation.initialExecutors {{ groups['workers'] | length}}
 spark.executor.heartbeatInterval 20s
 spark.network.timeout 300s
+spark.executorEnv.MPLCONFIGDIR /tmp/matplotlib
+spark.yarn.appMasterEnv.PYSPARK_PYTHON {{ ppl_path }}/venv/bin/python
+spark.yarn.appMasterEnv.PYTHONPATH {{ ppl_path }}/venv/lib/python3.9/site-packages:$PYTHONPATH
+spark.executorEnv.PYSPARK_PYTHON {{ ppl_path }}/venv/bin/python
+spark.executorEnv.PYTHONPATH {{ ppl_path }}/venv/lib/python3.9/site-packages:$PYTHONPATH
+
+# S3 access
+# https://medium.com/@abdullahdurrani/working-with-minio-and-spark-8b4729daec6e
+# Set the S3 access key, secret key, endpoint, and other configurations
+spark.hadoop.fs.s3a.access.key {{ minio_access_key }}
+spark.hadoop.fs.s3a.secret.key {{ minio_secret_key }}
+spark.hadoop.fs.s3a.endpoint {{ s3_url }}
+spark.hadoop.fs.s3a.path.style.access true
+spark.hadoop.fs.s3a.impl org.apache.hadoop.fs.s3a.S3AFileSystem
+spark.hadoop.fs.s3a.aws.credentials.provider org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider

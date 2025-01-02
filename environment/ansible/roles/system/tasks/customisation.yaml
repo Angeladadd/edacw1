@@ -40,7 +40,13 @@
     dest: /etc/hosts
     insertafter: "EOF"
 
-- name: ssh config
+- name: Ssh config
   ansible.builtin.copy:
     src: ./files/ssh_config
     dest: /home/almalinux/.ssh/config
+
+- name: Install Minio command-line
+  ansible.builtin.get_url:
+    dest: /usr/local/bin/mc
+    url: "https://dl.min.io/client/mc/release/linux-amd64/mc"
+    mode: "0755"

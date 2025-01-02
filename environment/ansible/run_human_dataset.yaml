@@ -1,0 +1,17 @@
+- name: Run pipeline with Human dataset
+  hosts: hostnode
+  tasks:
+  - name: Run pipeline
+    include_role:
+      name: pipeline
+      tasks_from: run.yaml
+    vars:
+      dataset: human
+      s3url: "{{ s3_url }}"
+      access_key: "{{ minio_access_key }}"
+      secret_key: "{{ minio_secret_key }}"
+      input_bucket: human-alphafolddb
+      output_bucket: human-cath-parsed
+      summary_bucket: cath-summary
+      summary_key: human-cath-parsed
+      script_args: "--partitions 1200"

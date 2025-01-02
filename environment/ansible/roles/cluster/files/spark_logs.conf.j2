@@ -1,0 +1,40 @@
+# {{ nginx_site_conf }} - Ansible Managed
+
+upstream spark_logs {
+    {% for server in upstream_servers %}
+    server {{ server }};
+    {% endfor %}
+}
+
+server {
+    listen 8091;
+    server_name hostnode;
+    
+    location {{ custom_log_path }} {
+        proxy_pass http://spark_logs/;
+        
+        # Preserve original headers
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Optional: Timeout settings
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+        
+        # Optional: WebSocket support (if needed)
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+    
+    location / {
+        return 404;
+    }
+    
+    # Logging for debugging
+    access_log /var/log/nginx/spark_logs_access.log;
+    error_log /var/log/nginx/spark_logs_error.log;
+}

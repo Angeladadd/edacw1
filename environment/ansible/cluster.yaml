@@ -33,3 +33,13 @@
       include_role:
         name: cluster
         tasks_from: start_spark.yaml
+
+- name: Start reverse proxy
+  hosts: hostnode
+  become: true
+  become_user: root
+  tasks:
+    - name: Start reverse proxy
+      include_role:
+        name: cluster
+        tasks_from: reverse_proxy.yaml

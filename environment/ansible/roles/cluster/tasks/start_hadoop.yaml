@@ -29,3 +29,6 @@
 
 - name: Start yarn
   ansible.builtin.shell: "nohup {{ hadoop_home }}/sbin/start-yarn.sh"
+
+- name: Create Yarn Log Directory
+  command: hadoop fs -mkdir -p /hadoop-yarn-app

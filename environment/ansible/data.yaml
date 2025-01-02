@@ -6,14 +6,6 @@
   roles:
     - role: storage
 
-- name: Share miniopass
-  hosts: hostnode:workers
-  tasks:
-    - name: Share miniopass
-      include_role:
-        name: storage
-        tasks_from: shareminiopass.yaml
-
 - name: Load datasets
   hosts: storagenode
   tasks:

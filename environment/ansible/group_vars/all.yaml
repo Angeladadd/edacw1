@@ -1,0 +1,5 @@
+---
+minio_access_key: "myminioadmin"
+minio_secret_key: "{{ lookup('ansible.builtin.file', './.miniopass') }}"
+minio_alias: "myminio"
+ppl_path: "/home/almalinux/pipeline"

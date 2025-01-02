@@ -3,25 +3,13 @@ from pyspark.sql import SparkSession
 from utils.s3utils import S3Client
 from utils.merizoutils import upsert_stats, format_parsed
 
-def app(config):
+def app(args):
     # Create a Spark session
-    spark = SparkSession.builder \
-    .config("spark.hadoop.fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider") \
-    .appName("MerizoSearchPipeline") \
-    .getOrCreate()
-    
-    # Setup S3A access
+    spark = SparkSession.builder.appName("MerizoSearchPipeline").getOrCreate()
     sc = spark.sparkContext
-    # https://medium.com/@abdullahdurrani/working-with-minio-and-spark-8b4729daec6e
-    # Set the MinIO access key, secret key, endpoint, and other configurations
-    sc._jsc.hadoopConfiguration().set("fs.s3a.access.key", config["s3"]["access_key"])
-    sc._jsc.hadoopConfiguration().set("fs.s3a.secret.key", config["s3"]["secret_key"])
-    sc._jsc.hadoopConfiguration().set("fs.s3a.endpoint", config["s3"]["endpoint_url"])
-    sc._jsc.hadoopConfiguration().set("fs.s3a.path.style.access", "true")
-    sc._jsc.hadoopConfiguration().set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
 
     # Define broadcast variables
-    bc_config = sc.broadcast(config)
+    bc_args = sc.broadcast(args)
 
     # Define UDFs
     def merizo(partition):
@@ -31,12 +19,12 @@ def app(config):
         batch_size = 8
         results = []
         partition = list(partition)
-        config = bc_config.value
-        s3 = S3Client(endpoint_url=config["s3"]["endpoint_url"], access_key=config["s3"]["access_key"],
-                      secret_key=config["s3"]["secret_key"], parallelism=8)
+        args = bc_args.value
+        s3 = S3Client(endpoint_url=args.s3url, access_key=args.access_key,
+                      secret_key=args.secret_key, parallelism=8)
         for i in range(0, len(partition), batch_size):
             batch = partition[i:i + batch_size]
-            results += batch_search_and_parse(batch, s3, config["dataset"]["output_bucket"],
+            results += batch_search_and_parse(batch, s3, args.output_bucket,
                                               parallelism=2, retry=3)
         return results # [(id, mean, cath_ids)]
     
@@ -50,10 +38,10 @@ def app(config):
         return dict(result)
 
     # Read all files into an RDD
-    rdd = sc.wholeTextFiles(f"s3a://{config['dataset']['input_bucket']}/",
-                            minPartitions=config["dataset"]["partitions"])
+    rdd = sc.wholeTextFiles(f"s3a://{args.input_bucket}/",
+                            minPartitions=args.partitions)
     print("Number of partitions: ", rdd.getNumPartitions())
-    if config["test"]:
+    if args.test:
         rdd = sc.parallelize(rdd.take(500), 30)
     result_rdd = rdd.mapPartitions(merizo)
 
@@ -67,13 +55,12 @@ def app(config):
     std = filtered_rdd.stdev()
 
     summary_body = format_parsed(summary_dict, bodyonly=True, cath_key="cath_code")
-    s3 = S3Client(endpoint_url=config["s3"]["endpoint_url"],
-                access_key=config["s3"]["access_key"],
-                secret_key=config["s3"]["secret_key"])
-    bucket = config["dataset"]["summary_bucket"]
-    s3.upload(bucket=bucket, key=config["dataset"]["summary_key"], data=summary_body)
-    upsert_stats(s3client=s3, bucket=bucket, key="plDDT_means.csv",
-                 organism=config["dataset"]["name"], mean=mean, std=std)
+    s3 = S3Client(endpoint_url=args.s3url,
+                access_key=args.access_key,
+                secret_key=args.secret_key)
+    s3.upload(bucket=args.summary_bucket, key=args.summary_key, data=summary_body)
+    upsert_stats(s3client=s3, bucket=args.summary_bucket, key="plDDT_means.csv",
+                 organism=args.dataset, mean=mean, std=std)
 
 
 if __name__ == "__main__":
@@ -82,32 +69,14 @@ if __name__ == "__main__":
     parser.add_argument("s3url", type=str,
                         default="https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk",
                         help="S3 endpoint URL that stores the data")
+    parser.add_argument("access_key", type=str, help="The S3 access key")
+    parser.add_argument("secret_key", type=str, help="The S3 secret key")
     parser.add_argument("input_bucket", type=str, help="The input bucket name")
     parser.add_argument("output_bucket", type=str, help="The output bucket name")
     parser.add_argument("summary_bucket", type=str, help="The summary bucket name")
-    parser.add_argument("--partitions", type=int, default=1200, help="Number of partitions to use")
+    parser.add_argument("summary_key", type=str, help="The summary key")
+    parser.add_argument("--partitions", type=int, default=300, help="Number of partitions to use")
     parser.add_argument("--test", action="store_true", help="Run the pipeline with a small subset of the data")
     args = parser.parse_args()
     
-    # Process arguments
-    passwd = None
-    with open('/home/almalinux/miniopass', 'r') as file:
-        passwd = file.read().strip()
-
-    config = {
-        "test": args.test,
-        "s3": {
-            "access_key": "myminioadmin",
-            "secret_key": passwd,
-            "endpoint_url": args.s3url,
-        },
-        "dataset": {
-            "name": args.dataset,
-            "input_bucket": args.input_bucket,
-            "output_bucket": args.output_bucket,
-            "summary_bucket": "cath-summary",
-            "summary_key": f"{args.dataset}_cath_summary.csv",
-            "partitions": args.partitions,
-        }
-    }
-    app(config)
+    app(args)

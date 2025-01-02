@@ -1,3 +1,10 @@
 ---
 hadoop_home: /home/almalinux/hadoop-3.4.0
 spark_home: /home/almalinux/spark-3.5.3-bin-hadoop3-scala2.13
+upstream_servers:
+  - "workernode1:8042"
+  - "workernode2:8042"
+  - "workernode3:8042"
+nginx_site_conf: "/etc/nginx/sites-available/spark-logs.conf"
+nginx_site_enabled: "/etc/nginx/sites-enabled/spark-logs.conf"
+custom_log_path: "/logs/spark"

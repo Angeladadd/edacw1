@@ -5,4 +5,4 @@
   command: hadoop fs -mkdir -p /spark-history
 
 - name: Start spark history server
-  ansible.builtin.shell: spark-3.5.3-bin-hadoop3-scala2.13/sbin/start-history-server.sh
+  ansible.builtin.shell: spark-3.5.3-bin-hadoop3-scala2.13/sbin/start-history-server.sh --properties-file /home/almalinux/spark-3.5.3-bin-hadoop3-scala2.13/conf/spark-defaults.conf

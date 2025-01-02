@@ -65,19 +65,16 @@ resource "harvester_virtualmachine" "hostvm" {
     condenser_ingress_isAllowed = true
     condenser_ingress_sparkhistory_hostname = "${var.username}-sparkhistory"
     condenser_ingress_sparkhistory_port = 18080
-    condenser_ingress_sparkhistory_nginx_proxy-body-size = "10000000m"
+    condenser_ingress_reverseproxy_hostname = "${var.username}-reverseproxy"
+    condenser_ingress_reverseproxy_port = 8091
     condenser_ingress_yarn_hostname = "${var.username}-yarn"
     condenser_ingress_yarn_port = 8088
-    condenser_ingress_yarn_nginx_proxy-body-size = "10000000m"
     condenser_ingress_prometheus_hostname = "${var.username}-prometheus"
     condenser_ingress_prometheus_port = 9090
-    condenser_ingress_prometheus_nginx_proxy-body-size = "10000000m"
     condenser_ingress_node_hostname = "${var.username}-node"
     condenser_ingress_node_port = 9100
-    condenser_ingress_node_nginx_proxy-body-size = "10000000m"
     condenser_ingress_grafana_hostname = "${var.username}-grafana"
     condenser_ingress_grafana_port = 3000
-    condenser_ingress_grafana_nginx_proxy-body-size = "10000000m"
   }
 
   cloudinit {

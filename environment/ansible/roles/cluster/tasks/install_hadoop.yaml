@@ -99,6 +99,22 @@
     marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
     block: |
       <property>
+        <name>yarn.log-aggregation-enable</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>yarn.log-aggregation.retain-seconds</name>
+        <value>-1</value>
+      </property>
+      <property>
+        <name>yarn.log-aggregation.compress</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>yarn.nodemanager.remote-app-log-dir</name>
+        <value>hdfs://hostnode:9000/hadoop-yarn-apps</value>
+      </property>
+      <property>
           <name>yarn.nodemanager.webapp.address</name>
           <value>{{inventory_hostname}}:8042</value>
       </property>

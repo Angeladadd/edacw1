@@ -1,0 +1,25 @@
+- name: Deploy Nginx configuration for Spark Logs
+  ansible.builtin.template:
+    src: files/spark_logs.conf.j2
+    dest: "{{ nginx_site_conf }}"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable the Nginx site by creating a symbolic link
+  ansible.builtin.file:
+    src: "{{ nginx_site_conf }}"
+    dest: "{{ nginx_site_enabled }}"
+    state: link
+    force: yes
+
+- name: Remove default Nginx site (optional but recommended)
+  ansible.builtin.file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+  ignore_errors: yes
+
+- name: Start Nginx
+  service:
+    name: nginx
+    state: started

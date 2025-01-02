@@ -1,0 +1,16 @@
+---
+- name: Prepare pipeline worker environment
+  hosts: workers
+  tasks:
+  - name: Worker environment setup
+    include_role:
+      name: pipeline
+      tasks_from: workerenv.yaml
+
+- name: Prepare pipeline host environment
+  hosts: hostnode
+  tasks:
+  - name: App master environment setup
+    include_role:
+      name: pipeline
+      tasks_from: appmasterenv.yaml

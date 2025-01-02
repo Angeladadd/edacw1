@@ -1,10 +1,6 @@
-- name: Test pipeline
+- name: Run pipeline with Ecoli dataset
   hosts: hostnode
   tasks:
-  - name: App master environment setup
-    include_role:
-      name: pipeline
-      tasks_from: appmasterenv.yaml
   - name: Run pipeline
     include_role:
       name: pipeline
@@ -19,5 +15,3 @@
       summary_bucket: cath-summary
       summary_key: ecoli-cath-parsed
       script_args: "--partitions 300"
-
-
