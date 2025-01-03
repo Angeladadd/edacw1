@@ -1,3 +1,19 @@
+- name: Create Nginx site directory
+  ansible.builtin.file:
+    path: "{{ nginx_site_conf }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Create Nginx site enabled directory
+  ansible.builtin.file:
+    path: "{{ nginx_site_enabled }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+
 - name: Deploy Nginx configuration for Spark Logs
   ansible.builtin.template:
     src: files/spark_logs.conf.j2
