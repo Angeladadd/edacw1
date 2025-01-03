@@ -8,6 +8,10 @@
     dest: /home/almalinux/spark.tgz
     url: "https://dlcdn.apache.org/spark/spark-3.5.3/spark-3.5.3-bin-hadoop3-scala2.13.tgz"
   when: not spark_folder_check.stat.exists
+  register: spark_download_result
+  until: spark_download_result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Unpack tgz file
   ansible.builtin.unarchive:

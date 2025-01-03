@@ -8,8 +8,8 @@
     dest: /home/almalinux/hadoop.tar.gz
     url: "https://dlcdn.apache.org/hadoop/common/hadoop-3.4.0/hadoop-3.4.0.tar.gz"
   when: not hadoop_folder_check.stat.exists
-  register: download_result
-  until: download_result is succeeded
+  register: hadoop_download_result
+  until: hadoop_download_result is succeeded
   retries: 3
   delay: 10
 
