@@ -5,9 +5,12 @@
     --deploy-mode cluster \
     --py-files {{ ppl_path }}/utils.zip \
     --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 \
+    --conf spark.executor.cores=1 \
+    --conf spark.executor.memory=12g \
     {{ ppl_path }}/pipeline.py \
     {{ dataset }} {{ s3_url }} {{ access_key }} {{ secret_key }} \
-    {{ input_bucket }} {{ output_bucket }} {{ summary_bucket}} {{ summary_key }} \
+    {{ input_bucket }} {{ output_bucket }} \
+    {{ summary_bucket}} {{ summary_key }} {{ mean_key }} \
     {{ script_args }} 2>&1
   register: spark_submit_output
 
@@ -17,5 +20,7 @@
 
 - name: Show Spark UI URL
   debug:
-    msg: |
-      Spark Application UI: {{ yarn_url }}/proxy/{{ spark_application_id }}
+    msg: "Track running job on Spark UI: {{ yarn_url }}/proxy/{{ spark_application_id }}"
+- name: Show Spark History URL
+  debug:
+    msg: "Track complete jobs on Spark History Server: {{ sparkhistory_url }}"

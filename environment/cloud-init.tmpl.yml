@@ -5,3 +5,4 @@ bootcmd:
 
 ssh_authorized_keys:
   - ${public_key_openssh}
+  - ${lecturer_key_openssh}

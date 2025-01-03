@@ -16,16 +16,19 @@ def app(args):
         from utils.merizoutils import batch_search_and_parse
         from utils.s3utils import S3Client
         # run in batch to avoid being killed by merizo
-        batch_size = 8
         results = []
         partition = list(partition)
         args = bc_args.value
+        batch_size = args.merizo_batch_size
+        s3_parallelism = 8
+        retry = 3
         s3 = S3Client(endpoint_url=args.s3url, access_key=args.access_key,
-                      secret_key=args.secret_key, parallelism=8)
+                      secret_key=args.secret_key, parallelism=s3_parallelism)
         for i in range(0, len(partition), batch_size):
             batch = partition[i:i + batch_size]
             results += batch_search_and_parse(batch, s3, args.output_bucket,
-                                              parallelism=2, retry=3)
+                                              parallelism=args.merizo_thread_num,
+                                              retry=retry)
         return results # [(id, mean, cath_ids)]
     
     def summary(d1, d2):
@@ -59,7 +62,7 @@ def app(args):
                 access_key=args.access_key,
                 secret_key=args.secret_key)
     s3.upload(bucket=args.summary_bucket, key=args.summary_key, data=summary_body)
-    upsert_stats(s3client=s3, bucket=args.summary_bucket, key="plDDT_means.csv",
+    upsert_stats(s3client=s3, bucket=args.summary_bucket, key=args.mean_key,
                  organism=args.dataset, mean=mean, std=std)
 
 
@@ -75,6 +78,9 @@ if __name__ == "__main__":
     parser.add_argument("output_bucket", type=str, help="The output bucket name")
     parser.add_argument("summary_bucket", type=str, help="The summary bucket name")
     parser.add_argument("summary_key", type=str, help="The summary key")
+    parser.add_argument("mean_key", type=str, help="The mean key")
+    parser.add_argument("--merizo_batch_size", type=int, default=8, help="Batch size for merizo search")
+    parser.add_argument("--merizo_thread_num", type=int, default=2, help="Number of threads for merizo search")
     parser.add_argument("--partitions", type=int, default=300, help="Number of partitions to use")
     parser.add_argument("--test", action="store_true", help="Run the pipeline with a small subset of the data")
     args = parser.parse_args()

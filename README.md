@@ -21,51 +21,62 @@ terraform init
 terraform apply
 # install dependencies
 chmod +x generate_inventory.py
-ansible-playbook -i generate_inventory.py ansible/full.yaml
-# load dataset
-ansible-playbook -i generate_inventory.py ansible/load_human_model.yaml
+# optional: clean known hosts
+# bash ../tools/clean.sh
+ansible-playbook -i generate_inventory.py ansible/site.yaml
 ```
 
-3. run the analysis script
+3. run analysis pipeline for specific datasets
 
-    There are two ways to analysis pipeline:
-    
-    1. From the laptop/cnc-machine that provisions the VMs
+  For Human dataset
 
-    ```sh
-    ansible-playbook -i generate_inventory.py ansible/run.yaml
-    ```
+```sh
+  ansible-playbook -i generate_inventory.py ansible/run_human_dataset.yaml
+  ```
 
-    2. From host node we created in previous step
+  For Ecoli dataset
 
-    ```sh
-    ssh <hostnode ip>
-    cd ~/pipeline
-    
-    ```
+```sh
+  ansible-playbook -i generate_inventory.py ansible/run_ecoli_dataset.yaml
+  ```
 
 
 ### Access Results
 
-1. install minio client
+Researchers can access result from Minio UI or command line tools
 
-  for Mac OS
-  ```sh
-  brew install minio/stable/mc
-  ```
+1. open bucket url
 
-  for Linux
-  ```sh
-  wget https://dl.min.io/client/mc/release/linux-amd64/mc
-  chmod +x mc
-  sudo mv mc /usr/local/bin/
-  ```
+https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/browser/ecoli-cath-parsed
 
-2. download .parsed file
+https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/browser/human-cath-parsed
+
+https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/browser/cath-summary
+
+2. get via curl
 
 ```sh
 curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4.parsed
 ```
+  If .parsed file not found, download and check \_segement.tsv for help
+
+```sh
+curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4_segment.tsv
+```
+
+3. get via minio command line tool
+
+  for Mac OS
+```sh
+  brew install minio/stable/mc
+  ```
+
+  for Linux
+```sh
+  wget https://dl.min.io/client/mc/release/linux-amd64/mc
+  chmod +x mc
+  sudo mv mc /usr/local/bin/
+  ```
 
 ### Monitoring
 

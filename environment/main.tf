@@ -8,6 +8,10 @@ data "harvester_ssh_key" "mysshkey" {
   namespace = var.namespace
 }
 
+locals {
+  lecturer_key = file(var.lecturerkeypath)
+}
+
 resource "random_id" "secret" {
   byte_length = 5
 }
@@ -18,6 +22,7 @@ resource "harvester_cloudinit_secret" "cloud-config" {
 
   user_data = templatefile("cloud-init.tmpl.yml", {
       public_key_openssh = data.harvester_ssh_key.mysshkey.public_key
+      lecturer_key_openssh = local.lecturer_key
     })
 }
 

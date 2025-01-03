@@ -23,6 +23,11 @@ variable keyname {
   default = "ucabc46-cnc"
 }
 
+variable lecturerkeypath {
+  type = string
+  default = "lecturer_key.pub"
+}
+
 variable worker_count {
   type    = number
   default = 3

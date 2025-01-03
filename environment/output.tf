@@ -34,6 +34,10 @@ output yarn_hostname {
   value = harvester_virtualmachine.hostvm[*].tags["condenser_ingress_yarn_hostname"]
 }
 
+output sparkhistory_hostname {
+  value = harvester_virtualmachine.hostvm[*].tags["condenser_ingress_sparkhistory_hostname"]
+}
+
 output s3_hostname {
   value = harvester_virtualmachine.storagevm[*].tags["condenser_ingress_os_hostname"]
 }

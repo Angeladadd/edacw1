@@ -42,6 +42,7 @@ def generate_inventory():
                 "prometheus_url": get_condenser_url(get_terraform_output("prometheus_hostname")[0]),
                 "s3_url": get_condenser_url(get_terraform_output("s3_hostname")[0]),
                 "yarn_url": get_condenser_url(get_terraform_output("yarn_hostname")[0]),
+                "sparkhistory_url": get_condenser_url(get_terraform_output("sparkhistory_hostname")[0]),
             }
         },
         "workers": { "hosts": workers },
