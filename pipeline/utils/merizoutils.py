@@ -10,9 +10,7 @@ from .metricsutils import write_metrics
 
 def batch_search_and_parse(
         files, s3client, output_bucket,
-        python_path="/home/almalinux/pipeline/venv/bin/python",
-        merizo_path="/home/almalinux/merizo_search/merizo_search/merizo.py",
-        db_path="/home/almalinux/db/cath_foldclassdb/cath-4.3-foldclassdb",
+        python_path, merizo_path, db_path,
         parallelism=4, retry=3):
     """
     1. Run merizo search in batch

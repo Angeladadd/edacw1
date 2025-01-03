@@ -27,6 +27,9 @@ def app(args):
         for i in range(0, len(partition), batch_size):
             batch = partition[i:i + batch_size]
             results += batch_search_and_parse(batch, s3, args.output_bucket,
+                                              pipline_path=args.pipeline_path,
+                                              merizo_path=args.merizo_path,
+                                              db_path=args.db_path,
                                               parallelism=args.merizo_thread_num,
                                               retry=retry)
         return results # [(id, mean, cath_ids)]
@@ -79,6 +82,9 @@ if __name__ == "__main__":
     parser.add_argument("summary_bucket", type=str, help="The summary bucket name")
     parser.add_argument("summary_key", type=str, help="The summary key")
     parser.add_argument("mean_key", type=str, help="The mean key")
+    parser.add_argument("--pipeline_path", type=str, default="/home/almalinux/pipeline", help="The path to the pipeline")
+    parser.add_argument("--merizo_path", type=str, default="/home/almalinux/merizo_search", help="The path to the merizo.py script")
+    parser.add_argument("--db_path", type=str, default="/home/almalinux/db/cath_foldclassdb/cath-4.3-foldclassdb", help="The path to the CATH database")
     parser.add_argument("--merizo_batch_size", type=int, default=8, help="Batch size for merizo search")
     parser.add_argument("--merizo_thread_num", type=int, default=2, help="Number of threads for merizo search")
     parser.add_argument("--partitions", type=int, default=300, help="Number of partitions to use")
