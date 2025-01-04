@@ -13,6 +13,6 @@
       input_bucket: human-alphafolddb
       output_bucket: human-cath-parsed
       summary_bucket: cath-summary
-      summary_key: human-cath-parsed
+      summary_key: human_cath_summary.csv
       mean_key: plDDT_means.csv
       script_args: "--merizo_batch_size 8 --merizo_thread_num 2 --partitions 1200"

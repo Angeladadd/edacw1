@@ -53,7 +53,7 @@ def app(args):
                             minPartitions=args.partitions)
     print("Number of partitions: ", rdd.getNumPartitions())
     if args.test:
-        rdd = sc.parallelize(rdd.take(500), 30)
+        rdd = sc.parallelize(rdd.take(100), 12)
     result_rdd = rdd.mapPartitions(merizo)
 
     filtered_rdd = result_rdd.filter(lambda r: len(r[2]) > 0)

@@ -1,6 +1,12 @@
 - name: Ensure MinIO alias is configured
   shell: "/usr/local/bin/mc alias set {{ minio_alias }} {{ s3_url }} {{ minio_access_key }} {{ minio_secret_key }}"
 
+- name: Clean temporary bucket
+  shell: "/usr/local/bin/mc rb --force {{ minio_alias }}/{{ item }}"
+  with_items:
+    - integration-test-parsed
+    - integration-test-summary
+
 - name: Create temporay buckets
   shell: "/usr/local/bin/mc mb --ignore-existing {{ minio_alias }}/{{ item }}"
   with_items:
@@ -18,27 +24,21 @@
     secret_key: "{{ minio_secret_key }}"
     input_bucket: ecoli-alphafolddb
     output_bucket: integration-test-parsed
-    summary_bucket: cath-summary
+    summary_bucket: integration-test-summary
     summary_key: integration-test-summary
     mean_key: plDDT_means.csv
     script_args: "--merizo_batch_size 8 --merizo_thread_num 2 --test"
 
-- name: Check the output of the integration tests
+- name: Check the results of the integration tests
   shell: "/usr/local/bin/mc ls {{ minio_alias }}/integration-test-parsed"
   register: integration_test_output
-  until: integration_test_output is succeeded
+  until: integration_test_output.stdout != ""
   retries: 20
   delay: 15
 
-- name: Check output not empty
-  assert:
-    that:
-      - integration_test_output.stdout != ""
-    fail_msg: "Integration test output is empty"
-    success_msg: "Integration test output is not empty"
-
-- name: Delete temporary bucket
-  shell: "/usr/local/bin/mc rb --force {{ minio_alias }}/{{ item }}"
-  with_items:
-    - integration-test-parsed
-    - integration-test-summary
+- name: Check the summary of the integration tests
+  shell: "/usr/local/bin/mc ls {{ minio_alias }}/integration-test-summary"
+  register: integration_summary_output
+  until: integration_summary_output.stdout != ""
+  retries: 20
+  delay: 15
