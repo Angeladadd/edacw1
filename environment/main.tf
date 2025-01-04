@@ -68,15 +68,15 @@ resource "harvester_virtualmachine" "hostvm" {
   tags = {
     condenser_ingress_isEnabled = true
     condenser_ingress_isAllowed = true
-    condenser_ingress_sparkhistory_hostname = "${var.username}-sparkhistory"
+    condenser_ingress_sparkhistory_hostname = "eda-${var.username}-sparkhistory"
     condenser_ingress_sparkhistory_port = 18080
-    condenser_ingress_yarn_hostname = "${var.username}-yarn"
+    condenser_ingress_yarn_hostname = "eda-${var.username}-yarn"
     condenser_ingress_yarn_port = 8088
-    condenser_ingress_prometheus_hostname = "${var.username}-prometheus"
+    condenser_ingress_prometheus_hostname = "eda-${var.username}-prometheus"
     condenser_ingress_prometheus_port = 9090
-    condenser_ingress_node_hostname = "${var.username}-node"
+    condenser_ingress_node_hostname = "eda-${var.username}-node"
     condenser_ingress_node_port = 9100
-    condenser_ingress_grafana_hostname = "${var.username}-grafana"
+    condenser_ingress_grafana_hostname = "eda-${var.username}-grafana"
     condenser_ingress_grafana_port = 3000
   }
 
@@ -127,7 +127,7 @@ resource "harvester_virtualmachine" "workervm" {
   tags = {
     condenser_ingress_isEnabled = true
     condenser_ingress_isAllowed = true
-    condenser_ingress_sparklog_hostname = "${var.username}-workernode${ count.index + 1 }"
+    condenser_ingress_sparklog_hostname = "eda-${var.username}-workernode${ count.index + 1 }"
     condenser_ingress_sparklog_port = 8042
     condenser_ingress_sparklog_nginx_proxy-body-size = "10000000m"
   }
@@ -188,11 +188,11 @@ resource "harvester_virtualmachine" "storagevm" {
 
   tags = {
     condenser_ingress_isEnabled = true
-    condenser_ingress_os_hostname = "${var.username}-s3"
+    condenser_ingress_os_hostname = "eda-${var.username}-s3"
     condenser_ingress_os_port = 9000
     condenser_ingress_os_protocol = "https"
     condenser_ingress_os_nginx_proxy-body-size = "100000m"
-    condenser_ingress_cons_hostname = "${var.username}-cons"
+    condenser_ingress_cons_hostname = "eda-${var.username}-cons"
     condenser_ingress_cons_port = 9001
     condenser_ingress_cons_protocol = "https"
     condenser_ingress_cons_nginx_proxy-body-size = "100000m"
