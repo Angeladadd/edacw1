@@ -3,3 +3,4 @@
 - import_playbook: monitor.yaml
 - import_playbook: cluster.yaml
 - import_playbook: pipelineenv.yaml
+- import_playbook: test.yaml
