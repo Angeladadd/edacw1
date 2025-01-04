@@ -59,3 +59,7 @@
 
 - name: Upload all files to MinIO bucket
   shell: "/usr/local/bin/mc cp --recursive {{ data_dir }}/ {{ minio_alias }}/{{ input_bucket }}"
+  register: upload_result
+  until: upload_result is succeeded
+  retries: 3
+  delay: 10
