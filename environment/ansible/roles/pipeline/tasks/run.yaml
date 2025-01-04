@@ -21,9 +21,33 @@
   set_fact:
     spark_application_id: "{{ spark_submit_output.stdout | regex_search('application_[0-9_]+') }}"
 
+- name: Wait for Application to Reach a Terminal State
+  uri:
+    url: "{{ yarn_url }}/ws/v1/cluster/apps/{{ spark_application_id }}"
+    method: GET
+    return_content: yes
+    headers:
+      Accept: "application/json"
+  register: app_status
+  retries: 10
+  delay: 15
+  until: >
+    app_status.status == 200 and
+    (
+      app_status.json.app.state == "RUNNING" or
+      app_status.json.app.state == "FINISHED" or
+      app_status.json.app.state == "FAILED" or
+      app_status.json.app.state == "KILLED"
+    )
+
 - name: Show Spark UI URL
   debug:
     msg: "Track running job on Spark UI: {{ yarn_url }}/proxy/{{ spark_application_id }}"
+
+- name: Show container log URL
+  debug:
+    msg: "Track running job on YARN logs: https://ucabc46-workernode1.comp0235.condenser.arc.ucl.ac.uk/logs/userlogs/{{ spark_application_id }}"
+
 - name: Show Spark History URL
   debug:
     msg: "Track complete jobs on Spark History Server: {{ sparkhistory_url }}"

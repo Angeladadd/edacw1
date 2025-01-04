@@ -6,7 +6,8 @@ from utils.metricsutils import write_metrics, MERIZO_FAILED_METRIC
 
 def app(args):
     # Create a Spark session
-    spark = SparkSession.builder.appName("MerizoSearchPipeline").getOrCreate()
+    test_suffix = "Test" if args.test else ""
+    spark = SparkSession.builder.appName("MerizoSearchPipeline" + test_suffix).getOrCreate()
     sc = spark.sparkContext
 
     # Define broadcast variables

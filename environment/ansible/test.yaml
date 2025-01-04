@@ -1,24 +1,10 @@
-- name: Test pipeline
+---
+- name: Run integration tests
   hosts: hostnode
   tasks:
-  - name: App master environment setup
-    include_role:
-      name: pipeline
-      tasks_from: appmasterenv.yaml
-  - name: Run pipeline
-    include_role:
-      name: pipeline
-      tasks_from: run.yaml
-    vars:
-      dataset: ecloi
-      s3url: "{{ s3_url }}"
-      access_key: "{{ minio_access_key }}"
-      secret_key: "{{ minio_secret_key }}"
-      input_bucket: ecoli-alphafolddb
-      output_bucket: ecoli-cath-parsed
-      summary_bucket: cath-summary
-      summary_key: ecoli-cath-parsed
-      mean_key: plDDT_means.csv
-      script_args: "--merizo_batch_size 8 --merizo_thread_num 2 --partitions 300"
+    - name: Run integration tests
+      include_role:
+        name: tests
+        tasks_from: integration.yaml
 
 
