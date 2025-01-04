@@ -2,4 +2,4 @@
 db_path: "/home/almalinux/db"
 ppl_path: "/home/almalinux/pipeline"
 cath_foldclassdb_path: "/home/almalinux/db/cath_foldclassdb"
-merizo_path: "/home/almalinux/merizo_search/merizo_search"
+merizo_path: "/home/almalinux/merizo_search/merizo_search/merizo.py"

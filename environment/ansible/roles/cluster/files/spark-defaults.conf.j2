@@ -10,7 +10,6 @@ spark.history.fs.logDirectory hdfs://hostnode:9000/spark-history
 spark.history.provider org.apache.spark.deploy.history.FsHistoryProvider
 spark.history.ui.port 18080
 spark.history.retainedApplications 20
-spark.history.custom.executor.log.url https://ucabc46-reverseproxy.comp0235.condenser.arc.ucl.ac.uk/logs/spark/
 # https://docs.cloudera.com/HDPDocuments/HDP2/HDP-2.3.6/bk_installing_manually_book/content/ch19s04s01.html
 spark.yarn.historyServer.address hostnode:18080
 spark.log.server.url {{ sparkhistory_url }}

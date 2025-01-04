@@ -2,6 +2,7 @@ import argparse
 from pyspark.sql import SparkSession
 from utils.s3utils import S3Client
 from utils.merizoutils import upsert_stats, format_parsed
+from utils.metricsutils import write_metrics, MERIZO_FAILED_METRIC
 
 def app(args):
     # Create a Spark session
@@ -10,6 +11,9 @@ def app(args):
 
     # Define broadcast variables
     bc_args = sc.broadcast(args)
+
+    # Initialise failure count
+    write_metrics(MERIZO_FAILED_METRIC, 0)
 
     # Define UDFs
     def merizo(partition):
@@ -27,7 +31,7 @@ def app(args):
         for i in range(0, len(partition), batch_size):
             batch = partition[i:i + batch_size]
             results += batch_search_and_parse(batch, s3, args.output_bucket,
-                                              pipline_path=args.pipeline_path,
+                                              python_path=args.python_path,
                                               merizo_path=args.merizo_path,
                                               db_path=args.db_path,
                                               parallelism=args.merizo_thread_num,
@@ -82,8 +86,8 @@ if __name__ == "__main__":
     parser.add_argument("summary_bucket", type=str, help="The summary bucket name")
     parser.add_argument("summary_key", type=str, help="The summary key")
     parser.add_argument("mean_key", type=str, help="The mean key")
-    parser.add_argument("--pipeline_path", type=str, default="/home/almalinux/pipeline", help="The path to the pipeline")
-    parser.add_argument("--merizo_path", type=str, default="/home/almalinux/merizo_search", help="The path to the merizo.py script")
+    parser.add_argument("--python_path", type=str, default="/home/almalinux/pipeline/venv/bin/python", help="The path to the pipeline")
+    parser.add_argument("--merizo_path", type=str, default="/home/almalinux/merizo_search/merizo_search/merizo.py", help="The path to the merizo.py script")
     parser.add_argument("--db_path", type=str, default="/home/almalinux/db/cath_foldclassdb/cath-4.3-foldclassdb", help="The path to the CATH database")
     parser.add_argument("--merizo_batch_size", type=int, default=8, help="Batch size for merizo search")
     parser.add_argument("--merizo_thread_num", type=int, default=2, help="Number of threads for merizo search")

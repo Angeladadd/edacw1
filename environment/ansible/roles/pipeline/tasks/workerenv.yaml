@@ -50,6 +50,11 @@
     virtualenv: "{{ ppl_path }}/venv"
     virtualenv_python: python3
 
+- name: Check if merizo repo is already copied
+  ansible.builtin.stat:
+    path: "{{ merizo_path }}"
+  register: merizo_check
+
 - name: Copy merizo repo
   ansible.builtin.copy:
     src: /home/almalinux/edacw1/merizo_search
@@ -57,6 +62,7 @@
     owner: almalinux
     group: almalinux
     mode: "0755"
+  when: not merizo_check.stat.exists
 
 - name: Ensure Matplotlib cache directory exists
   ansible.builtin.file:

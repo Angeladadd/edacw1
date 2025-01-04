@@ -70,8 +70,6 @@ resource "harvester_virtualmachine" "hostvm" {
     condenser_ingress_isAllowed = true
     condenser_ingress_sparkhistory_hostname = "${var.username}-sparkhistory"
     condenser_ingress_sparkhistory_port = 18080
-    condenser_ingress_reverseproxy_hostname = "${var.username}-reverseproxy"
-    condenser_ingress_reverseproxy_port = 8091
     condenser_ingress_yarn_hostname = "${var.username}-yarn"
     condenser_ingress_yarn_port = 8088
     condenser_ingress_prometheus_hostname = "${var.username}-prometheus"

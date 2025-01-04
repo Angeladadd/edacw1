@@ -84,7 +84,7 @@
       </property>
       <property>
           <name>dfs.namenode.http-address</name>
-          <value>hostnode:50070</value>
+          <value>hostnode:9870</value>
       </property>
       <property>
           <name>dfs.replication</name>
@@ -104,11 +104,7 @@
       </property>
       <property>
         <name>yarn.log-aggregation.retain-seconds</name>
-        <value>-1</value>
-      </property>
-      <property>
-        <name>yarn.log-aggregation.compress</name>
-        <value>true</value>
+        <value>259200</value>
       </property>
       <property>
         <name>yarn.nodemanager.remote-app-log-dir</name>

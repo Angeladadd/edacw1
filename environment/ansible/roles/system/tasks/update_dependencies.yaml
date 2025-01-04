@@ -2,3 +2,7 @@
   ansible.builtin.dnf:
     name: "*"
     state: latest
+  register: update_result
+  until: update_result is succeeded
+  retries: 3
+  delay: 10

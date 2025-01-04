@@ -11,6 +11,10 @@
     url: "{{ data_url }}"
     timeout: 600
     validate_certs: no
+  register: download_result
+  until: download_result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Check if Model is already extracted
   ansible.builtin.stat:
