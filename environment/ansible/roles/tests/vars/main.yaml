@@ -1,0 +1,8 @@
+---
+endpoints:
+  - "{{ yarn_url }}"
+  - "{{ sparkhistory_url }}"
+  - "{{ grafana_url }}"
+  - "{{ minio_url }}"
+
+smoke_endpoints: "{{ endpoints + node_manager_urls }}"
