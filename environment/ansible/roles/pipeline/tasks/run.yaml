@@ -44,9 +44,10 @@
   debug:
     msg: "Track running job on Spark UI: {{ yarn_url }}/proxy/{{ spark_application_id }}"
 
-- name: Show container log URL
+- name: Show container log URL for each worker node
   debug:
-    msg: "Track running job on YARN logs: https://ucabc46-workernode1.comp0235.condenser.arc.ucl.ac.uk/logs/userlogs/{{ spark_application_id }}"
+    msg: "Track running job on Executor logs: {{ item }}/logs/userlogs/{{ spark_application_id }}"
+  with_items: "{{ node_manager_urls }}"
 
 - name: Show Spark History URL
   debug:

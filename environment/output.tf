@@ -41,3 +41,7 @@ output sparkhistory_hostname {
 output s3_hostname {
   value = harvester_virtualmachine.storagevm[*].tags["condenser_ingress_os_hostname"]
 }
+
+output sparklog_hostnames {
+  value = harvester_virtualmachine.workervm[*].tags["condenser_ingress_sparklog_hostname"]
+}
