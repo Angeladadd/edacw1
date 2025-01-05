@@ -1,0 +1,34 @@
+- name: Ensure MinIO alias is configured
+  shell: "/usr/local/bin/mc alias set {{ minio_alias }} {{ s3_url }} {{ minio_access_key }} {{ minio_secret_key }}"
+
+- name: Create MinIO bucket if it does not exist
+  shell: "/usr/local/bin/mc mb --ignore-existing myminio/{{ validation_bucket }}"
+
+- name: Copy pipeline scripts
+  ansible.builtin.copy:
+    src: /home/almalinux/edacw1/pipeline
+    dest: /home/almalinux/
+    owner: almalinux
+    group: almalinux
+    mode: "0755"
+
+- name: Analyse E.Coli results
+  shell: |
+    spark-submit \
+    --master yarn \
+    --deploy-mode cluster \
+    --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 \
+    --conf spark.executor.cores=4 \
+    --conf spark.executor.memory=4g \
+    {{ ppl_path }}/validate.py ecoli ecoli-alphafolddb ecoli-cath-parsed {{ validation_bucket }}
+
+- name: Analyse Human results
+  shell: |
+    spark-submit \
+    --master yarn \
+    --deploy-mode cluster \
+    --packages org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 \
+    --conf spark.executor.cores=4 \
+    --conf spark.executor.memory=4g \
+    {{ ppl_path }}/validate.py human human-alphafolddb human-cath-parsed {{ validation_bucket }}
+
