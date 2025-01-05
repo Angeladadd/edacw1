@@ -1,0 +1,3 @@
+---
+- import_tasks: smoke.yaml
+- import_tasks: end2end.yaml

@@ -1,10 +1,4 @@
----
-- name: Run integration tests
+- name: Run Tests
   hosts: hostnode
-  tasks:
-    - name: Run integration tests
-      include_role:
-        name: tests
-        tasks_from: integration.yaml
-
-
+  roles:
+    - tests

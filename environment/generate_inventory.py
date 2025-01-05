@@ -43,6 +43,7 @@ def generate_inventory():
                 "s3_url": get_condenser_url(get_terraform_output("s3_hostname")[0]),
                 "yarn_url": get_condenser_url(get_terraform_output("yarn_hostname")[0]),
                 "sparkhistory_url": get_condenser_url(get_terraform_output("sparkhistory_hostname")[0]),
+                "minio_url": get_condenser_url(get_terraform_output("minio_hostname")[0]),
                 "node_manager_urls": [get_condenser_url(hostname) for hostname in get_terraform_output("sparklog_hostnames")],
             }
         },
