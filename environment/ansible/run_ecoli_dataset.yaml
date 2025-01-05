@@ -6,7 +6,7 @@
       name: pipeline
       tasks_from: run.yaml
     vars:
-      dataset: ecloi
+      dataset: ecoli
       s3url: "{{ s3_url }}"
       access_key: "{{ minio_access_key }}"
       secret_key: "{{ minio_secret_key }}"
