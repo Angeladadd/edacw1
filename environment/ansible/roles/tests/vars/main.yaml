@@ -6,3 +6,4 @@ endpoints:
   - "{{ minio_url }}"
 
 smoke_endpoints: "{{ endpoints + node_manager_urls }}"
+validation_bucket: validation

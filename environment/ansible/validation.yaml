@@ -1,0 +1,8 @@
+---
+- name: Validate results
+  hosts: hostnode
+  tasks:
+    - name: Generate statistics results
+      include_role:
+        name: tests
+        tasks_from: validation.yaml

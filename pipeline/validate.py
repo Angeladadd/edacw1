@@ -1,30 +1,19 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, regexp_extract
 import argparse
-from pyspark.sql.types import StringType
 
-def app(config):
-    spark = SparkSession.builder \
-    .config("spark.hadoop.fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider") \
-    .appName("GeneratePipelineRunReport") \
-    .getOrCreate()
+def app(args):
+    spark = SparkSession.builder.appName("GeneratePipelineRunReport").getOrCreate()
     sc = spark.sparkContext
-    # https://medium.com/@abdullahdurrani/working-with-minio-and-spark-8b4729daec6e
-    # Set the MinIO access key, secret key, endpoint, and other configurations
-    sc._jsc.hadoopConfiguration().set("fs.s3a.access.key", config["s3"]["access_key"])
-    sc._jsc.hadoopConfiguration().set("fs.s3a.secret.key", config["s3"]["secret_key"])
-    sc._jsc.hadoopConfiguration().set("fs.s3a.endpoint", config["s3"]["endpoint_url"])
-    sc._jsc.hadoopConfiguration().set("fs.s3a.path.style.access", "true")
-    sc._jsc.hadoopConfiguration().set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
 
-    input_df = sc.wholeTextFiles(f"s3a://{config['dataset']['input_bucket']}/", 200).toDF(["filename", "content"])
-    output_df = sc.wholeTextFiles(f"s3a://{config['dataset']['output_bucket']}/", 200).toDF(["filename", "content"])
+    input_df = sc.wholeTextFiles(f"s3a://{args.input_bucket}/", 200).toDF(["filename", "content"])
+    output_df = sc.wholeTextFiles(f"s3a://{args.output_bucket}/", 200).toDF(["filename", "content"])
 
-    input_df = input_df.withColumn("id", regexp_extract(col("filename"), f"^s3a://{config['dataset']['input_bucket']}/(.*)\.pdb$", 1))
+    input_df = input_df.withColumn("id", regexp_extract(col("filename"), f"^s3a://{args.input_bucket}/(.*)\.pdb$", 1))
     
-    parsed_df = output_df.filter(col("filename").endswith(".parsed")).withColumn("id", regexp_extract(col("filename"), f"^s3a://{config['dataset']['output_bucket']}/(.*)\.parsed$", 1))
-    search_df = output_df.filter(col("filename").endswith("_search.tsv")).withColumn("id", regexp_extract(col("filename"), f"^s3a://{config['dataset']['output_bucket']}/(.*)_search\.tsv$", 1))
-    segment_df = output_df.filter(col("filename").endswith("_segment.tsv")).withColumn("id", regexp_extract(col("filename"), f"^s3a://{config['dataset']['output_bucket']}/(.*)_segment\.tsv$", 1))
+    parsed_df = output_df.filter(col("filename").endswith(".parsed")).withColumn("id", regexp_extract(col("filename"), f"^s3a://{args.output_bucket}/(.*)\.parsed$", 1))
+    search_df = output_df.filter(col("filename").endswith("_search.tsv")).withColumn("id", regexp_extract(col("filename"), f"^s3a://{args.output_bucket}/(.*)_search\.tsv$", 1))
+    segment_df = output_df.filter(col("filename").endswith("_segment.tsv")).withColumn("id", regexp_extract(col("filename"), f"^s3a://{args.output_bucket}/(.*)_segment\.tsv$", 1))
 
     # find input without segment files
     missing_segment = input_df.join(segment_df, "id", "left_anti").select("id")
@@ -33,30 +22,19 @@ def app(config):
     # find input without parsed files
     missing_parsed = input_df.join(parsed_df, "id", "left_anti").select("id")
 
-    missing_segment.coalesce(1).write.mode("overwrite").csv(f"s3a://report/{config['dataset']['name']}_missing_segment", header=True)
-    missing_search.coalesce(1).write.mode("overwrite").csv(f"s3a://report/{config['dataset']['name']}_missing_search", header=True)
-    missing_parsed.coalesce(1).write.mode("overwrite").csv(f"s3a://report/{config['dataset']['name']}_missing_parsed", header=True)
+    print(f"Num of segment.tsv: {segment_df.count()}")
+    print(f"Num of search.tsv: {search_df.count()}")
+    print(f"Num of parsed: {parsed_df.count()}")
+
+    missing_segment.coalesce(1).write.mode("overwrite").csv(f"s3a://{args.validation_bucket}/{args.dataset}_missing_segment", header=True)
+    missing_search.coalesce(1).write.mode("overwrite").csv(f"s3a://{args.validation_bucket}/{args.dataset}_missing_search", header=True)
+    missing_parsed.coalesce(1).write.mode("overwrite").csv(f"s3a://{args.validation_bucket}/{args.dataset}_missing_parsed", header=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("dataset", type=str, help="Dataset to analyse the pipeline results")
+    parser.add_argument("input_bucket", type=str, help="The name of bucket that contains pdb files")
+    parser.add_argument("output_bucket", type=str, help="The name of bucket that contains parsed and intermediate files")
+    parser.add_argument("validation_bucket", type=str, help="The name of bucket to store the validation report")
     args = parser.parse_args()
-    
-    # Process arguments
-    passwd = None
-    with open('/home/almalinux/miniopass', 'r') as file:
-        passwd = file.read().strip()
-
-    config = {
-        "s3": {
-            "access_key": "myminioadmin",
-            "secret_key": passwd,
-            "endpoint_url": "https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk",
-        },
-        "dataset": {
-            "name": args.dataset,
-            "input_bucket": f"{args.dataset}-alphafolddb",
-            "output_bucket": f"{args.dataset}-cath-parsed"
-        },
-    }
-    app(config)
+    app(args)
