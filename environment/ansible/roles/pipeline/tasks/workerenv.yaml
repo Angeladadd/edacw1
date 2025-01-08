@@ -8,6 +8,10 @@
   ansible.builtin.get_url:
     dest: "{{ db_path }}/cath_foldclassdb.tar.gz"
     url: http://bioinfadmin.cs.ucl.ac.uk/downloads/merizo_search/cath_foldclassdb.tar.gz
+  register: db_download_result
+  until: db_download_result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Check if db is already extracted
   ansible.builtin.stat:
