@@ -4,14 +4,21 @@
 
 ### Deployment
 
-1. disable host key checking
+1. Install ansible
+
+```sh
+sudo dnf install python3-pip
+python3 -m pip install --user ansible
+```
+
+2. disable host key checking
 ```sh
 vim  ~/.ssh/config
 # add the following conf to ~/.ssh/config
 Host *
         StrictHostKeyChecking accept-new
 ```
-2. setup machines and environments
+3. setup machines and environments
 ```sh
 # clone repository
 git clone git@github.com:Angeladadd/edacw1.git
@@ -26,7 +33,7 @@ chmod +x generate_inventory.py
 ansible-playbook -i generate_inventory.py ansible/site.yaml
 ```
 
-3. run analysis pipeline for specific datasets
+4. run analysis pipeline for specific datasets
 
   For Human dataset
 
@@ -40,7 +47,7 @@ ansible-playbook -i generate_inventory.py ansible/site.yaml
   ansible-playbook -i generate_inventory.py ansible/run_ecoli_dataset.yaml
   ```
 
-4. use different datasets
+5. use different datasets
 
   two steps are required for using different datasets other than ecoli and human
 
