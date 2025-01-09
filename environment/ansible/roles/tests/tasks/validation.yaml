@@ -21,6 +21,12 @@
     --conf spark.executor.cores=4 \
     --conf spark.executor.memory=4g \
     {{ ppl_path }}/validate.py ecoli ecoli-alphafolddb ecoli-cath-parsed {{ validation_bucket }}
+  register: ecoli_submit_result
+  changed_when: false
+
+- name: Extract YARN application ID for E.Coli job
+  set_fact:
+    ecoli_app_id: "{{ ecoli_submit_result.stdout | regex_search('application_\\d+_\\d+') }}"
 
 - name: Analyse Human results
   shell: |
@@ -31,4 +37,38 @@
     --conf spark.executor.cores=4 \
     --conf spark.executor.memory=4g \
     {{ ppl_path }}/validate.py human human-alphafolddb human-cath-parsed {{ validation_bucket }}
+  register: human_submit_result
+  changed_when: false
+
+- name: Extract YARN application ID for Human job
+  set_fact:
+    human_app_id: "{{ human_submit_result.stdout | regex_search('application_\\d+_\\d+') }}"
+
+- name: Check E.Coli job status until completed
+  shell: "yarn application -status {{ ecoli_app_id }}"
+  register: ecoli_status
+  until: 
+    - "'Final-State : SUCCEEDED' in ecoli_status.stdout"
+    - "'Final-State : FAILED' in ecoli_status.stdout"
+    - "'Final-State : KILLED' in ecoli_status.stdout"
+  retries: 20
+  delay: 60
+  changed_when: false
+  failed_when: 
+    - "'Final-State : FAILED' in ecoli_status.stdout"
+    - "'Final-State : KILLED' in ecoli_status.stdout"
+
+- name: Check Human job status until completed
+  shell: "yarn application -status {{ human_app_id }}"
+  register: human_status
+  until: 
+    - "'Final-State : SUCCEEDED' in human_status.stdout"
+    - "'Final-State : FAILED' in human_status.stdout"
+    - "'Final-State : KILLED' in human_status.stdout"
+  retries: 20
+  delay: 60
+  changed_when: false
+  failed_when:
+    - "'Final-State : FAILED' in human_status.stdout"
+    - "'Final-State : KILLED' in human_status.stdout"
 
