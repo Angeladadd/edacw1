@@ -61,7 +61,7 @@ class S3Client:
             raise e
         return True, content
 
-    @retry(stop=stop_after_attempt(3), wait=wait_fixed(seconds=3))
+    @retry(stop=stop_after_attempt(3), wait=wait_fixed(5))
     def batch_upload(self, bucket, files):
         """
         Upload files in batch to S3 with 3 times retry
