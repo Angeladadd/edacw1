@@ -57,10 +57,9 @@ def app(args):
         search_output = f"{output_prefix}_search.tsv"
         if os.path.exists(search_output):
             with open(search_output, "r") as f:
-                next(f) # skip the header
                 # count the number of lines in the file
                 entries = len(f.readlines())
-                assert entries == 0, "Search file is not empty for missing _search.tsv files"
+                assert entries > 1, f"Search file is not empty for missing _search.tsv files, sample: {[sample.id for sample in samples]}"
 
 
 if __name__ == "__main__":
