@@ -11,7 +11,7 @@
     {{ dataset }} {{ s3_url }} {{ access_key }} {{ secret_key }} \
     {{ input_bucket }} {{ output_bucket }} \
     {{ summary_bucket}} {{ summary_key }} {{ mean_key }} \
-    --python_path {{ ppl_path }}/venv/bin/python \
+    --python_path {{ python_path }} \
     --db_path {{ cath_foldclassdb_path }}/cath-4.3-foldclassdb \
     --merizo_path {{ merizo_path }} \
     {{ script_args }} 2>&1

@@ -1,3 +1,11 @@
+- name: Run Unit Tests
+  hosts: "{{ groups['workers'][0] }}"
+  tasks:
+    - name: Run Unit Tests
+      include_role:
+        name: tests
+        tasks_from: unit.yaml
+
 - name: Run Tests
   hosts: hostnode
   roles:
