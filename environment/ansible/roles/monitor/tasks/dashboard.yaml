@@ -21,3 +21,7 @@
     url_username: "{{ grafana_user }}"
     url_password: "{{ grafana_password }}"
     state: present
+  register: dashboard_result
+  until: dashboard_result is succeeded
+  retries: 3
+  delay: 10
