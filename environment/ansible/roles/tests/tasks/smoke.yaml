@@ -9,3 +9,6 @@
       Accept: "application/json"
   register: endpoint_check
   with_items: "{{ smoke_endpoints }}"
+  until: endpoint_check is succeeded
+  retries: 3
+  delay: 10
