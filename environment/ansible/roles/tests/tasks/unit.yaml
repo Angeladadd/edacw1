@@ -1,0 +1,7 @@
+- name: Start virtual environment
+  ansible.builtin.shell: "source {{ ppl_path }}/venv/bin/activate"
+
+- name: Run Python unit tests
+  command: "{{ python_path }} -m unittest discover -s {{ ppl_path }}/tests -v"
+  args:
+    chdir: "{{ ppl_path }}"

@@ -20,14 +20,17 @@ def batch_search_and_parse(
     4. Return results [(id, mean, cath_ids)]
 
     Args:
-    - files: list of (file_path, file_content)
+    - files: list of (file, content) tuples
     - s3client: S3Client
-    - output_bucket: str
-    - python_path: str
-    - merizo_path: str
-    - db_path: str
-    - parallelism: int
-    - retry: int
+    - output_bucket: str, s3 bucket to save parsed results
+    - python_path: str, path to python
+    - merizo_path: str, path to merizo.py
+    - db_path: str, path to database
+    - parallelism: int, number of threads for merizo search
+    - retry: int, number of retries for failed search
+
+    Returns:
+    - results: list of (id, mean, cath_ids)
     """
 
     local_dir = batch_write_tmp_local(files, parallelism)
@@ -62,6 +65,20 @@ def batch_search_and_parse(
     return results
 
 def run_merizo_search(local_path, output_prefix, python, merizo, db, parallelism=4):
+    """
+    Shell command to run merizo search
+
+    Args:
+    - local_path: str, path to local directory containing pdb files
+    - output_prefix: str, prefix for output files
+    - python: str, path to python
+    - merizo: str, path to merizo.py
+    - db: str, path to database
+    - parallelism: int, number of threads for merizo search
+
+    Returns:
+    - code: int, exit code of the shell command
+    """
     input = local_path if local_path.endswith(".pdb") else os.path.join(local_path, "*.pdb")
     code = os.system(f"{python} -W ignore::FutureWarning {merizo} easy-search {input} {db} {output_prefix} tmp --iterate --output_headers -d cpu --threads {parallelism}")
     return code
@@ -118,7 +135,7 @@ def parse_and_save(output_prefixs, s3client, bucket): # [(id, mean, cath_ids)]
     Args:
     - output_prefixs: list of str, output_prefixs for merizo search results
     - s3client: S3Client
-    - bucket: str
+    - bucket: str, s3 bucket to save parsed results
 
     Returns:
     - results: list of (id, mean, cath_ids)
@@ -138,6 +155,14 @@ def parse_and_save(output_prefixs, s3client, bucket): # [(id, mean, cath_ids)]
 def upsert_stats(s3client, bucket, key, organism, mean, std):
     """
     Insert/Update mean and std of plddt for a database in S3
+
+    Args:
+    - s3client: S3Client
+    - bucket: str, s3 bucket to save summary stats
+    - key: str, s3 key to save summary stats
+    - organism: str, organism name/dataset name
+    - mean: float, mean plddt
+    - std: float, std of plddt
     """
 
     df = pd.DataFrame(columns=["organism", "mean plddt", "plddt std"])
@@ -159,6 +184,16 @@ def upsert_stats(s3client, bucket, key, organism, mean, std):
 def format_parsed(cath_ids, bodyonly=False, id=None, mean=None, cath_key="cath_id"):
     """
     Format cath_ids dict into a csv string(.parsed file)
+
+    Args:
+    - cath_ids: dict, cath_id: count
+    - bodyonly: bool, return body only if True
+    - id: str, id of the parsed file
+    - mean: float, mean plddt
+    - cath_key: str, key for cath_id
+
+    Returns:
+    - parsed: str, formatted parsed content
     """
 
     body = f"{cath_key},count\n" + "\n".join([f"{cath},{v}" for cath, v in cath_ids.items()])

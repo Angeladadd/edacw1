@@ -23,7 +23,7 @@
     access_key: "{{ minio_access_key }}"
     secret_key: "{{ minio_secret_key }}"
     input_bucket: ecoli-alphafolddb
-    output_bucket: integration-test-parsed
+    output_bucket: ecoli-cath-parsed
     summary_bucket: integration-test-summary
     summary_key: integration-test-summary
     mean_key: plDDT_means.csv

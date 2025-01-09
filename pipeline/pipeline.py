@@ -18,12 +18,22 @@ def app(args):
 
     # Define UDFs
     def merizo(partition):
+        """
+        Run merizo search and parse the results for a partition
+
+        Args:
+        - partition: iterator of (file, content) tuples
+
+        Returns:
+        - results: list of (id, mean, cath_ids)
+        """
+
         from utils.merizoutils import batch_search_and_parse
         from utils.s3utils import S3Client
         # run in batch to avoid being killed by merizo
         results = []
         partition = list(partition)
-        args = bc_args.value
+        args = bc_args.value # broadcast variables
         batch_size = args.merizo_batch_size
         s3_parallelism = 8
         retry = 3
@@ -40,6 +50,17 @@ def app(args):
         return results # [(id, mean, cath_ids)]
     
     def summary(d1, d2):
+        """
+        Count the number of occurrences of each key in two dictionaries
+
+        Args:
+        - d1: dict
+        - d2: dict
+
+        Returns:
+        - result: dict
+        """
+
         from collections import defaultdict
         result = defaultdict(int)
         for k, v in d1.items():
@@ -48,28 +69,38 @@ def app(args):
             result[k] += v
         return dict(result)
 
-    # Read all files into an RDD
+    # Read all files into RDDs with minPartitions
     rdd = sc.wholeTextFiles(f"s3a://{args.input_bucket}/",
                             minPartitions=args.partitions)
     print("Number of partitions: ", rdd.getNumPartitions())
+
     if args.test:
+        # Run the pipeline with a small subset of the data for end2end test
         rdd = sc.parallelize(rdd.take(100), 12)
+
+    # Run the pipeline: merizo search -> parse -> upload
     result_rdd = rdd.mapPartitions(merizo)
 
+    # Filter out empty results and calculate summary statistics
     filtered_rdd = result_rdd.filter(lambda r: len(r[2]) > 0)
     filtered_rdd.cache()
-    summary_dict = filtered_rdd.map(lambda r: r[2]).reduce(summary)
 
+    # Run the pipeline: summary
+    summary_dict = filtered_rdd.map(lambda r: r[2]).reduce(summary)
     filtered_rdd = filtered_rdd.map(lambda r: r[1])
     filtered_rdd.cache()
     mean = filtered_rdd.mean()
     std = filtered_rdd.stdev()
 
+    # Write summary to S3
     summary_body = format_parsed(summary_dict, bodyonly=True, cath_key="cath_code")
     s3 = S3Client(endpoint_url=args.s3url,
                 access_key=args.access_key,
                 secret_key=args.secret_key)
     s3.upload(bucket=args.summary_bucket, key=args.summary_key, data=summary_body)
+
+
+    # Upsert mean and std to S3
     upsert_stats(s3client=s3, bucket=args.summary_bucket, key=args.mean_key,
                  organism=args.dataset, mean=mean, std=std)
 
