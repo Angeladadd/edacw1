@@ -60,6 +60,7 @@ def app(args):
                 # count the number of lines in the file
                 entries = len(f.readlines())
                 assert entries > 1, f"Search file is not empty for missing _search.tsv files, sample: {[sample.id for sample in samples]}"
+        print("Validation succeeded")
 
 
 if __name__ == "__main__":
