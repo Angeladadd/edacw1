@@ -51,7 +51,7 @@
     - "'Final-State : SUCCEEDED' in ecoli_status.stdout"
     - "'Final-State : FAILED' in ecoli_status.stdout"
     - "'Final-State : KILLED' in ecoli_status.stdout"
-  retries: 20
+  retries: 10
   delay: 60
   failed_when: 
     - "'Final-State : FAILED' in ecoli_status.stdout"
@@ -64,7 +64,7 @@
     - "'Final-State : SUCCEEDED' in human_status.stdout"
     - "'Final-State : FAILED' in human_status.stdout"
     - "'Final-State : KILLED' in human_status.stdout"
-  retries: 20
+  retries: 10
   delay: 60
   failed_when:
     - "'Final-State : FAILED' in human_status.stdout"
