@@ -21,8 +21,9 @@ Host *
 3. setup machines and environments
 ```sh
 # clone repository
+cd ~
 git clone git@github.com:Angeladadd/edacw1.git
-cd /path/to/edacw1/environment
+cd ~/path/to~/edacw1/environment
 # create vms
 terraform init
 terraform apply
@@ -107,8 +108,9 @@ install rsync on remote machine and create remote target folder
 
 ```sh
 sudo dnf install rsync
+cd ~
 git clone git@github.com:Angeladadd/edacw1.git
-cd path/to/edacw1
+cd ~/edacw1
 ```
 
 setup auto sync on local machine

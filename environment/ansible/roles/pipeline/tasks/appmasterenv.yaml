@@ -5,6 +5,7 @@
     owner: almalinux
     group: almalinux
     mode: "0755"
+    force: yes # Overwrite existing files
 
 - name: Zip 'utils' folder
   archive:

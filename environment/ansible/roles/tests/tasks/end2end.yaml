@@ -34,11 +34,11 @@
   register: integration_test_output
   until: integration_test_output.stdout != ""
   retries: 20
-  delay: 15
+  delay: 60
 
 - name: Check the summary of the integration tests
   shell: "/usr/local/bin/mc ls {{ minio_alias }}/integration-test-summary"
   register: integration_summary_output
   until: integration_summary_output.stdout != ""
   retries: 20
-  delay: 15
+  delay: 60
