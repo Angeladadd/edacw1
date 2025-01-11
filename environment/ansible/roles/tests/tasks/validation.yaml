@@ -6,7 +6,7 @@
 
 - name: Copy pipeline scripts
   ansible.builtin.copy:
-    src: /home/almalinux/edacw1/pipeline
+    src: "{{ playbook_dir }}/../../pipeline"
     dest: /home/almalinux/
     owner: almalinux
     group: almalinux
