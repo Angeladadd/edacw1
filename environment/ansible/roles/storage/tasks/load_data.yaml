@@ -35,6 +35,12 @@
     dest: "{{ data_dir }}"
   when: not folder_check.stat.exists
 
+- name: Remove archive
+  ansible.builtin.file:
+    path: "{{ data_tar_dir }}"
+    state: absent
+  when: not folder_check.stat.exists
+
 - name: Remove non-.pdb files in a directory
   shell: 'find {{ data_dir }} -type f ! -name "*.pdb.gz" -delete'
 

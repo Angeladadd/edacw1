@@ -34,7 +34,7 @@
 
 - name: Copy pipeline scripts
   ansible.builtin.copy:
-    src: /home/almalinux/edacw1/pipeline
+    src: "{{ playbook_dir }}/../../pipeline"
     dest: /home/almalinux/
     owner: almalinux
     group: almalinux
@@ -61,7 +61,7 @@
 
 - name: Copy merizo repo
   ansible.builtin.copy:
-    src: /home/almalinux/edacw1/merizo_search
+    src: "{{ playbook_dir }}/../../merizo_search"
     dest: /home/almalinux/
     owner: almalinux
     group: almalinux
