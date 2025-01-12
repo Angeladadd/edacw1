@@ -55,7 +55,7 @@ ansible-playbook -i generate_inventory.py ansible/site.yaml
 
   two steps are required for using different datasets other than ecoli and human
 
-  - update the data loading playbook: [environment/ansible/data.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/data.yaml#L12)。 configure to download the new dataset and create input and output buckets
+  - update the data loading playbook: [environment/ansible/data.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/data.yaml#L12). configure to download the new dataset and create input and output buckets
   - create a analysis playbook as of the existing datasets: [environment/ansible/run_human_dataset.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/run_human_dataset.yaml).
   configure the necessary parameters to run the analysis script. (Hint: adjust partitions for different size of input to get better performance. a recommendation is keep a single partition less than 100 rows)
 
@@ -98,8 +98,8 @@ curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/
   - [Workerndoe3](https://ucabc46-workernode3.comp0235.condenser.arc.ucl.ac.uk/logs/)
 - [Spark History Server](https://ucabc46-sparkhistory.comp0235.condenser.arc.ucl.ac.uk/)
 - [MinIO Web UI](https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/login): User: myminioadmin, Password:
-  - 1. Check cnc machine to get password: ```cat <path to>/edacw1/environment/ansible/.miniopass``
-  - 2. Or check storage node to get password: ```cat cat /home/almalinux/miniopass```
+  - 1. Check cnc machine to get password: ```cat <path to>/edacw1/environment/ansible/.miniopass```
+  - 2. Or check storage node to get password: ```cat /home/almalinux/miniopass```
 
 
 ### Development
