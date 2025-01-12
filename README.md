@@ -27,6 +27,7 @@ Host *
 ##### clone repository
 cd ~
 git clone git@github.com:Angeladadd/edacw1.git
+git checkout submit
 cd ~/edacw1/environment
 ##### create vms
 terraform init
@@ -72,26 +73,26 @@ Researchers can access result from Minio UI or command line tools
 
 1. open bucket url
 
-https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/browser/ecoli-cath-parsed
+https://eda-ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/browser/ecoli-cath-parsed
 
-https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/browser/human-cath-parsed
+https://eda-ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/browser/human-cath-parsed
 
-https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/browser/cath-summary
+https://eda-ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/browser/cath-summary
 
 2. get via curl
 
 ```sh
-curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4.parsed
+curl -O https://eda-ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4.parsed
 ```
   If .parsed file not found, download and check \_segement.tsv for help
 
 ```sh
-curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4_segment.tsv
+curl -O https://eda-ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4_segment.tsv
 ```
 
 ### Monitoring
 
-Grafana Dashboard: https://ucabc46-grafana.comp0235.condenser.arc.ucl.ac.uk/d/yarn-cluster-resource-hostnode/yarn-cluster-resource?orgId=1
+Grafana Dashboard: https://eda-ucabc46-grafana.comp0235.condenser.arc.ucl.ac.uk/d/yarn-cluster-resource-hostnode/yarn-cluster-resource?orgId=1
 
 Username: admin, Password: admin
 
