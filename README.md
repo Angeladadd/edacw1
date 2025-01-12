@@ -15,7 +15,7 @@ sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/has
 sudo dnf install -y terraform
 ```
 
-2. disable host key checking
+2. disable host key checking(optional)
 ```sh
 vim  ~/.ssh/config
 # add the following conf to ~/.ssh/config
@@ -25,7 +25,6 @@ Host *
 3. setup machines and environments
 ```sh
 ##### clone repository
-cd ~
 git clone git@github.com:Angeladadd/edacw1.git
 git checkout submit
 cd ~/edacw1/environment
@@ -53,11 +52,11 @@ ansible-playbook -i generate_inventory.py ansible/site.yaml
   ansible-playbook -i generate_inventory.py ansible/run_ecoli_dataset.yaml
   ```
 
-5. use different datasets
+5. use different datasets(optional)
 
   two steps are required for using different datasets other than ecoli and human
 
-  - update the data loading playbook: [environment/ansible/data.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/data.yaml#L12)。 configure to download the new dataset and create input and output buckets
+  - update the data loading playbook: [environment/ansible/data.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/data.yaml#L12). configure to download the new dataset and create input and output buckets
   - create a analysis playbook as of the existing datasets: [environment/ansible/run_human_dataset.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/run_human_dataset.yaml).
   configure the necessary parameters to run the analysis script. (Hint: adjust partitions for different size of input to get better performance. a recommendation is keep a single partition less than 100 rows)
 
