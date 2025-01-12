@@ -15,15 +15,12 @@ sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/has
 sudo dnf install -y terraform
 ```
 
-2. disable host key checking and clean knownhosts(optional)
+2. disable host key checking(optional)
 ```sh
 vim  ~/.ssh/config
 # add the following conf to ~/.ssh/config
 Host *
         StrictHostKeyChecking accept-new
-
-# clean knownhosts
-rm ~/.ssh/known_hosts
 ```
 3. setup machines and environments
 ```sh
