@@ -20,14 +20,14 @@ Host *
 ```
 3. setup machines and environments
 ```sh
-# clone repository
+##### clone repository
 cd ~
 git clone git@github.com:Angeladadd/edacw1.git
 cd ~/edacw1/environment
-# create vms
+##### create vms
 terraform init
 terraform apply
-# install dependencies
+##### install dependencies
 chmod +x generate_inventory.py
 # optional: clean known hosts
 # bash ../tools/clean.sh
