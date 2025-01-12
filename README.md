@@ -23,7 +23,7 @@ Host *
 # clone repository
 cd ~
 git clone git@github.com:Angeladadd/edacw1.git
-cd ~/path/to~/edacw1/environment
+cd ~/edacw1/environment
 # create vms
 terraform init
 terraform apply
@@ -56,6 +56,11 @@ ansible-playbook -i generate_inventory.py ansible/site.yaml
   2. create a analysis playbook as of the existing datasets: [environment/ansible/run_human_dataset.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/run_human_dataset.yaml).
   configure the necessary parameters to run the analysis script. (Hint: adjust partitions for different size of input to get better performance. a recommendation is keep a single partition less than 100 rows)
 
+6. run validation test to validate the pipeline result(optional)
+  ```sh
+  ansible-playbook -i generate_inventory.py ansible/validation.yaml
+  ```
+
 
 ### Access Results
 
@@ -79,20 +84,6 @@ curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/
 ```sh
 curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4_segment.tsv
 ```
-
-3. get via minio command line tool
-
-  for Mac OS
-```sh
-  brew install minio/stable/mc
-  ```
-
-  for Linux
-```sh
-  wget https://dl.min.io/client/mc/release/linux-amd64/mc
-  chmod +x mc
-  sudo mv mc /usr/local/bin/
-  ```
 
 ### Monitoring
 
