@@ -4,11 +4,11 @@
 
 ### Deployment
 
-1. Install ansible
+1. Install git, ansible and terraform
 
 ```sh
-sudo dnf install python3-pip
-python3 -m pip install --user ansible
+sudo dnf install -y git ansible
+sudo dnf install -y terraform
 ```
 
 2. disable host key checking
