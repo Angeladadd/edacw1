@@ -76,6 +76,10 @@
   with_items:
     - "{{ output_bucket }}"
     - cath-summary
+  register: download_policy_result
+  until: download_policy_result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Upload all files to MinIO bucket
   shell: "/usr/local/bin/mc cp --recursive {{ data_dir }}/ {{ minio_alias }}/{{ input_bucket }}"
