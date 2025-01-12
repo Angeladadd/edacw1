@@ -15,19 +15,21 @@ sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/has
 sudo dnf install -y terraform
 ```
 
-2. disable host key checking
+2. disable host key checking and clean knownhosts(optional)
 ```sh
 vim  ~/.ssh/config
 # add the following conf to ~/.ssh/config
 Host *
         StrictHostKeyChecking accept-new
+
+# clean knownhosts
+rm ~/.ssh/known_hosts
 ```
 3. setup machines and environments
 ```sh
 ##### clone repository
-cd ~
 git clone git@github.com:Angeladadd/edacw1.git
-cd ~/edacw1/environment
+cd <path to>/edacw1/environment
 ##### create vms
 terraform init
 terraform apply
@@ -52,7 +54,7 @@ ansible-playbook -i generate_inventory.py ansible/site.yaml
   ansible-playbook -i generate_inventory.py ansible/run_ecoli_dataset.yaml
   ```
 
-5. use different datasets
+5. use different datasets(optional)
 
   two steps are required for using different datasets other than ecoli and human
 
@@ -89,11 +91,19 @@ curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/
 curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4_segment.tsv
 ```
 
-### Monitoring
+### Monitoring and Management
 
-Grafana Dashboard: https://ucabc46-grafana.comp0235.condenser.arc.ucl.ac.uk/d/yarn-cluster-resource-hostnode/yarn-cluster-resource?orgId=1
+- [Grafana Dashboard](https://ucabc46-grafana.comp0235.condenser.arc.ucl.ac.uk/d/yarn-cluster-resource-hostnode/yarn-cluster-resource?orgId=1): Username: admin, Password: admin
+- [Yarn Resource Manager](https://ucabc46-yarn.comp0235.condenser.arc.ucl.ac.uk/cluster)
+- Yarn Node Manager
+  - [Workernode1](https://ucabc46-workernode1.comp0235.condenser.arc.ucl.ac.uk/logs/)
+  - [Workerndoe2](https://ucabc46-workernode2.comp0235.condenser.arc.ucl.ac.uk/logs/)
+  - [Workerndoe3](https://ucabc46-workernode3.comp0235.condenser.arc.ucl.ac.uk/logs/)
+- [Spark History Server](https://ucabc46-sparkhistory.comp0235.condenser.arc.ucl.ac.uk/)
+- [MinIO Web UI](https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/login): User: myminioadmin, Password:
+  - 1. Check cnc machine to get password: ```cat <path to>/edacw1/environment/ansible/.miniopass``
+  - 2. Or check storage node to get password: ```cat cat /home/almalinux/miniopass```
 
-Username: admin, Password: admin
 
 ### Development
 
