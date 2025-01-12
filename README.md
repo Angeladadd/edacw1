@@ -8,6 +8,10 @@
 
 ```sh
 sudo dnf install -y git ansible
+
+# https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
+sudo dnf install -y dnf-plugins-core
+sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/fedora/hashicorp.repo
 sudo dnf install -y terraform
 ```
 
