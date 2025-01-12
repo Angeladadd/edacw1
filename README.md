@@ -4,11 +4,11 @@
 
 ### Deployment
 
-1. Install ansible
+1. Install git, ansible and terraform
 
 ```sh
-sudo dnf install python3-pip
-python3 -m pip install --user ansible
+sudo dnf install -y git ansible
+sudo dnf install -y terraform
 ```
 
 2. disable host key checking
@@ -20,14 +20,14 @@ Host *
 ```
 3. setup machines and environments
 ```sh
-# clone repository
+##### clone repository
 cd ~
 git clone git@github.com:Angeladadd/edacw1.git
-cd ~/path/to~/edacw1/environment
-# create vms
+cd ~/edacw1/environment
+##### create vms
 terraform init
 terraform apply
-# install dependencies
+##### install dependencies
 chmod +x generate_inventory.py
 # optional: clean known hosts
 # bash ../tools/clean.sh
@@ -52,9 +52,14 @@ ansible-playbook -i generate_inventory.py ansible/site.yaml
 
   two steps are required for using different datasets other than ecoli and human
 
-  1. update the data loading playbook: [environment/ansible/data.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/data.yaml#L12)。 configure to download the new dataset and create input and output buckets
-  2. create a analysis playbook as of the existing datasets: [environment/ansible/run_human_dataset.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/run_human_dataset.yaml).
+  - update the data loading playbook: [environment/ansible/data.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/data.yaml#L12)。 configure to download the new dataset and create input and output buckets
+  - create a analysis playbook as of the existing datasets: [environment/ansible/run_human_dataset.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/run_human_dataset.yaml).
   configure the necessary parameters to run the analysis script. (Hint: adjust partitions for different size of input to get better performance. a recommendation is keep a single partition less than 100 rows)
+
+6. run validation test to validate the pipeline result(optional)
+  ```sh
+  ansible-playbook -i generate_inventory.py ansible/validation.yaml
+  ```
 
 
 ### Access Results
@@ -79,20 +84,6 @@ curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/
 ```sh
 curl -O https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk/human-cath-parsed/AF-A0A024RBG1-F1-model_v4_segment.tsv
 ```
-
-3. get via minio command line tool
-
-  for Mac OS
-```sh
-  brew install minio/stable/mc
-  ```
-
-  for Linux
-```sh
-  wget https://dl.min.io/client/mc/release/linux-amd64/mc
-  chmod +x mc
-  sudo mv mc /usr/local/bin/
-  ```
 
 ### Monitoring
 
