@@ -24,8 +24,8 @@ Host *
 ```
 3. setup machines and environments
 ```sh
-##### clone repository
-git clone git@github.com:Angeladadd/edacw1.git
+##### clone repository with merizo submodule
+git clone --recurse-submodules git@github.com:Angeladadd/edacw1.git
 cd <path to>/edacw1/environment
 ##### create vms
 terraform init
