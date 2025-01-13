@@ -4,6 +4,7 @@
 
 ### Deployment
 
+#### Preparation
 1. Install git, ansible and terraform
 
 ```sh
@@ -22,25 +23,37 @@ vim  ~/.ssh/config
 Host *
         StrictHostKeyChecking accept-new
 ```
-3. setup machines and environments
-```sh
-##### clone repository with merizo submodule
-git clone git@github.com:Angeladadd/edacw1.git
-##### init merizo search
-cd edacw1/
-git submodule update --init --recursive
-##### create vms
-cd environment
-terraform init
-terraform apply
-##### install dependencies
-chmod +x generate_inventory.py
-# optional: clean known hosts
-# bash ../tools/clean.sh
-ansible-playbook -i generate_inventory.py ansible/site.yaml
-```
 
-4. run analysis pipeline for specific datasets
+#### Deploy cluster
+3. clone repo and submodules
+   ```sh
+   ##### clone repository with merizo submodule
+   git clone git@github.com:Angeladadd/edacw1.git
+   ##### init merizo search
+   cd edacw1/
+   git submodule update --init --recursive
+   ```
+
+4. update `namespace`, `username`, `network_name`, and `keyname` in [environment/variables.tf](https://github.com/Angeladadd/edacw1/blob/main/environment/variables.tf)
+
+   This step is necessary to ensure that developers can use their resources and access the created machines.
+   After changing the ```username```, exposed endpoints listed below should be changed to \<username\>-\<hostname\>.comp0235.condenser.arc.ucl.ac.uk correspondingly, for example, \<username\>-grafana.comp0235.condenser.arc.ucl.ac.uk.
+
+5. setup machines and environments
+   ```sh
+   ##### create vms
+   cd environment
+   terraform init
+   terraform apply
+   ##### install dependencies
+   chmod +x generate_inventory.py
+   # clean known hosts
+   bash ../tools/clean.sh
+   ansible-playbook -i generate_inventory.py ansible/site.yaml
+   ```
+
+#### Run datasets
+6. run analysis pipeline for specific datasets
 
   For Human dataset
 
@@ -54,7 +67,7 @@ ansible-playbook -i generate_inventory.py ansible/site.yaml
   ansible-playbook -i generate_inventory.py ansible/run_ecoli_dataset.yaml
   ```
 
-5. use different datasets(optional)
+7. use different datasets(optional)
 
   two steps are required for using different datasets other than ecoli and human
 
@@ -62,7 +75,7 @@ ansible-playbook -i generate_inventory.py ansible/site.yaml
   - create a analysis playbook as of the existing datasets: [environment/ansible/run_human_dataset.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/run_human_dataset.yaml).
   configure the necessary parameters to run the analysis script. (Hint: adjust partitions for different size of input to get better performance. a recommendation is keep a single partition less than 100 rows)
 
-6. run validation test to validate the pipeline result(optional)
+7. run validation test to validate the pipeline result(optional)
   ```sh
   ansible-playbook -i generate_inventory.py ansible/validation.yaml
   ```
