@@ -25,7 +25,9 @@ Host *
 3. setup machines and environments
 ```sh
 ##### clone repository with merizo submodule
-git clone --recurse-submodules git@github.com:Angeladadd/edacw1.git
+git clone git@github.com:Angeladadd/edacw1.git
+# if forgot to recurse submodules or use the zipped git repo
+git submodule update --init --recursive
 cd <path to>/edacw1/environment
 ##### create vms
 terraform init
