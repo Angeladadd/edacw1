@@ -26,10 +26,11 @@ Host *
 ```sh
 ##### clone repository with merizo submodule
 git clone git@github.com:Angeladadd/edacw1.git
-cd <path to>/edacw1/environment
 ##### init merizo search
+cd <path to>/edacw1/
 git submodule update --init --recursive
 ##### create vms
+cd <path to>/edacw1/environment
 terraform init
 terraform apply
 ##### install dependencies
