@@ -75,7 +75,7 @@ Host *
   - create a analysis playbook as of the existing datasets: [environment/ansible/run_human_dataset.yaml](https://github.com/Angeladadd/edacw1/blob/main/environment/ansible/run_human_dataset.yaml).
   configure the necessary parameters to run the analysis script. (Hint: adjust partitions for different size of input to get better performance. a recommendation is keep a single partition less than 100 rows)
 
-7. run validation test to validate the pipeline result(optional)
+8. run validation test to validate the pipeline result(optional)
   ```sh
   ansible-playbook -i generate_inventory.py ansible/validation.yaml
   ```
