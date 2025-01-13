@@ -116,6 +116,7 @@ sudo dnf install rsync
 cd ~
 git clone git@github.com:Angeladadd/edacw1.git
 cd ~/edacw1
+git submodule update --init --recursive
 ```
 
 setup auto sync on local machine
