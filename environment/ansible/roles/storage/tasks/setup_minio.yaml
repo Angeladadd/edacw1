@@ -143,3 +143,7 @@
     owner: almalinux
     group: almalinux
     mode: "0600"
+
+- name: Remove minio alias if created
+  ansible.builtin.shell: "/usr/local/bin/mc alias remove {{ minio_alias }}"
+  ignore_errors: yes
