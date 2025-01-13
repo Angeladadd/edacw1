@@ -70,6 +70,10 @@
     - "{{ input_bucket }}"
     - "{{ output_bucket }}"
     - cath-summary
+  register: bucket_create_result
+  until: bucket_create_result is succeeded
+  retries: 3
+  delay: 10
 
 - name: Set up MinIO bucket download policy
   shell: "/usr/local/bin/mc anonymous set download myminio/{{ item }}"
