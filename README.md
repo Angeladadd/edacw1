@@ -25,7 +25,7 @@ Host *
         StrictHostKeyChecking accept-new
 ```
 
-#### Deploy cluster
+#### Clone git repo
 3. clone repo and submodules
    ```sh
    ##### clone repository with merizo submodule
@@ -34,6 +34,18 @@ Host *
    cd edacw1/
    git submodule update --init --recursive
    ```
+
+#### Test existing cluster
+Note: the following scripts are only used to test existing cluster
+```
+git checkout test_current_cluster
+cd environment
+bash ../tools/fetch_miniopass.sh
+# this step will run an integration test on a subset of ecoli
+ansible-playbook -i inventory.yaml ansible/test.yaml
+```
+
+#### Deploy new cluster
 
 4. update `namespace`, `username`, `network_name`, and `keyname` in [environment/variables.tf](https://github.com/Angeladadd/edacw1/blob/main/environment/variables.tf)
 
