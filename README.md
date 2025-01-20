@@ -8,6 +8,7 @@
 1. Install git, ansible and terraform
 
 ```sh
+sudo dnf install -y epel-release
 sudo dnf install -y git ansible
 
 # https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
