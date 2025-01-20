@@ -1,0 +1,33 @@
+---
+all:
+  vars:
+    grafana_url: "https://ucabc46-grafana.comp0235.condenser.arc.ucl.ac.uk"
+    prometheus_url: "https://ucabc46-prometheus.comp0235.condenser.arc.ucl.ac.uk"
+    s3_url: "https://ucabc46-s3.comp0235.condenser.arc.ucl.ac.uk"
+    yarn_url: "https://ucabc46-yarn.comp0235.condenser.arc.ucl.ac.uk"
+    sparkhistory_url: "https://ucabc46-sparkhistory.comp0235.condenser.arc.ucl.ac.uk"
+    minio_url: "https://ucabc46-cons.comp0235.condenser.arc.ucl.ac.uk"
+    node_manager_urls:
+      - "https://ucabc46-workernode1.comp0235.condenser.arc.ucl.ac.uk"
+      - "https://ucabc46-workernode2.comp0235.condenser.arc.ucl.ac.uk"
+      - "https://ucabc46-workernode3.comp0235.condenser.arc.ucl.ac.uk"
+
+  children:
+    hostnode:
+      hosts:
+        10.134.12.231:
+          ip: "10.134.12.231"
+
+    storagenode:
+      hosts:
+        10.134.12.190:
+          ip: "10.134.12.190"
+
+    workers:
+      hosts:
+        10.134.12.206:
+          ip: "10.134.12.206"
+        10.134.12.227:
+          ip: "10.134.12.227"
+        10.134.12.168:
+          ip: "10.134.12.168"
